@@ -15,8 +15,14 @@ owlpane.start({
 });
 ```
 
-Everything can also come from environment variables: `OTEL_EXPORTER_OTLP_ENDPOINT`, `OWLPANE_INGEST_KEY`,
+Everything can also come from environment variables: `OTEL_EXPORTER_OTLP_ENDPOINT` or `OWLPANE_INGEST_URL`, `OWLPANE_INGEST_KEY`,
 `OTEL_SERVICE_NAME`, `OWLPANE_RELEASE`, `OWLPANE_ENVIRONMENT`. Set `OTEL_SDK_DISABLED=true` to switch it off.
+
+No code change:
+
+```bash
+node --import @owlpane/node/register dist/main.js
+```
 
 - **Never blocks your app.** Export is batched and fails quietly; the SDK does nothing when no endpoint is set.
 - **Your key is a write-only credential.** It can send data for one project and cannot read anything.
