@@ -68,7 +68,10 @@ export function traceUserProfileEnabled(): boolean {
 
 function endpointOf(o: InitOptions): string | undefined {
   return (
-    o.endpoint?.trim() || process.env.OTEL_EXPORTER_OTLP_ENDPOINT?.trim() || undefined
+    o.endpoint?.trim() ||
+    process.env.OTEL_EXPORTER_OTLP_ENDPOINT?.trim() ||
+    process.env.OWLPANE_INGEST_URL?.trim() ||
+    undefined
   );
 }
 

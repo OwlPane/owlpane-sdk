@@ -8,9 +8,10 @@
     "schema:validate": "node scripts/validate-schema.mjs",
     "verify:generated": "bash scripts/verify-generated.sh",
     "build": "npm run codegen && npm run build --workspaces --if-present",
-    "test": "npm run schema:validate && npm run test -w @owlpane/codegen && npm run test --workspaces --if-present && npm run test:go && npm run test:python",
+    "test": "npm run schema:validate && npm run test -w @owlpane/codegen && npm run test --workspaces --if-present && npm run test:go && npm run test:python && npm run test:ruby",
     "test:go": "cd packages/go && go test ./... && bash scripts/conformance.sh",
     "test:python": "cd packages/python && (test -d .venv || python3 -m venv .venv) && .venv/bin/pip install -q -e '.[dev]' && .venv/bin/python -m pytest -q && bash scripts/conformance.sh",
+    "test:ruby": "cd packages/ruby && ruby -Ilib -Itest test/owlpane_test.rb",
     "lint": "npm run lint --workspaces --if-present"
   },
   "devDependencies": {
