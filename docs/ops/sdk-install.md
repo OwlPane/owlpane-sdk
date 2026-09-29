@@ -11,8 +11,8 @@ Pin a version in `package.json`:
 ```json
 {
   "dependencies": {
-    "@owlpane/node": "^0.1.3",
-    "@owlpane/browser": "^0.1.3"
+    "@owlpane/node": "^0.1.4",
+    "@owlpane/browser": "^0.1.4"
   }
 }
 ```
