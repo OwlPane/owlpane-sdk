@@ -43,6 +43,8 @@ These helpers set the attributes the console pages filter on. They do nothing us
 | `owlpane.mobileResource("ios" \| "android" \| "ipados", { reactNative: true })` | `os.name`, and `telemetry.sdk.language=react-native` when asked | Mobile, React Native |
 | `start({ owner, repository })` | `service.owner`, `vcs.repository.url.full` | Service catalog |
 
+**Carbon / serverless (Phase 8):** set OpenTelemetry FaaS resource attributes on Lambda, Cloud Functions and similar runtimes so endpoint attribution can rank functions: `faas.name`, `cloud.provider`, `cloud.region`, and `faas.coldstart` on the span when a cold start occurred. The SDK always emits an unsampled `http.server.request.count` counter (`owlpane-http` meter) for SCI per-request figures when HTTP is instrumented.
+
 `os.type` follows the OpenTelemetry enum (`darwin` for iOS and iPadOS, `linux` for Android). The Mobile page matches `os.name` (`iOS`, `Android`, `iPadOS`), not a desktop Node process.
 
 **LLM usage in Owlpane:** when your app calls the official [`openai`](https://www.npmjs.com/package/openai) client (including Groq via `baseURL: "https://api.groq.com/openai/v1"`), `@opentelemetry/instrumentation-openai` is registered automatically and emits `gen_ai.*` span attributes for the LLM usage page. Disable with `disableInstrumentations: ["@opentelemetry/instrumentation-openai"]`. Raw `fetch` to an LLM API is not instrumented.

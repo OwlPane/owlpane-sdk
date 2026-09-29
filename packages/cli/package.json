@@ -1,0 +1,12 @@
+{
+  "name": "@owlpane/cli",
+  "version": "0.1.0",
+  "description": "Owlpane command line: send CI runs, test results, coverage and security scanner reports (SARIF, Trivy, gitleaks, OSV, CycloneDX) to Owlpane.",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "owlpane": "bin/owlpane.mjs" },
+  "files": ["bin", "src", "README.md"],
+  "engines": { "node": ">=18" },
+  "scripts": { "test": "node --test test/" },
+  "publishConfig": { "access": "public", "registry": "https://registry.npmjs.org" }
+}

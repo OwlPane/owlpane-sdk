@@ -20,6 +20,7 @@ import { OpenAIInstrumentation } from "@opentelemetry/instrumentation-openai";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { logs as logsApi } from "@opentelemetry/api-logs";
 import { LoggerProvider, BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
+import type { ClientRequest, IncomingMessage } from "http";
 import {
   ATTR_SERVICE_NAME,
   ATTR_SERVICE_VERSION,
@@ -164,6 +165,25 @@ export function start(options: InitOptions = {}): void {
     }),
     instrumentations: [
       getNodeAutoInstrumentations({
+        "@opentelemetry/instrumentation-http": {
+          ...off("@opentelemetry/instrumentation-http"),
+          applyCustomAttributesOnSpan: (span, request, response) => {
+            if (!isIncomingMessage(request)) return;
+            const attrs = (span as unknown as { attributes?: Record<string, unknown> }).attributes ?? {};
+            const status = Number((response as import("http").ServerResponse).statusCode ?? 0);
+            const route =
+              typeof attrs["http.route"] === "string"
+                ? attrs["http.route"]
+                : typeof attrs["url.path"] === "string"
+                  ? attrs["url.path"]
+                  : (request as IncomingMessage).url ?? "";
+            httpRequests().add(1, {
+              "http.request.method": String(attrs["http.request.method"] ?? (request as IncomingMessage).method ?? ""),
+              "http.route": route,
+              "http.response.status_code": Number.isFinite(status) ? status : 0,
+            });
+          },
+        },
         "@opentelemetry/instrumentation-fs": off("@opentelemetry/instrumentation-fs"),
         "@opentelemetry/instrumentation-dns": off("@opentelemetry/instrumentation-dns"),
         // A tcp.connect span per socket and a span per router layer are low-value noise.
@@ -192,7 +212,33 @@ export function start(options: InitOptions = {}): void {
 
 /** Flushes and stops the pipeline. Call on shutdown so the last batch of spans isn't dropped. */
 export function shutdown(): Promise<void> {
-  return Promise.all([sdk?.shutdown(), logProvider?.shutdown()]).then(() => undefined);
+  const s = sdk;
+  const logs = logProvider;
+  sdk = undefined;
+  logProvider = undefined;
+  return Promise.all([s?.shutdown(), logs?.shutdown()]).then(() => undefined);
+}
+
+// ---------- HTTP request counter (unsampled) ----------
+
+/**
+ * Exact request totals for per-request carbon figures (SCI needs a functional unit). Trace sampling
+ * must not shrink the denominator, so this counter lives in the metrics pipeline, not in spans: the
+ * HTTP instrumentation's response hook runs for sampled and unsampled requests alike. Route and method
+ * are read from the finished server span's attributes, so cardinality stays bounded by the app's routes.
+ */
+let requestCounter: api.Counter | undefined;
+function httpRequests(): api.Counter {
+  requestCounter ??= api.metrics.getMeter("owlpane-http").createCounter("http.server.request.count", {
+    unit: "{request}",
+    description: "HTTP requests received, unsampled, by route (feeds per-request carbon figures)",
+  });
+  return requestCounter;
+}
+
+/** Outgoing ClientRequest carries `path`; server IncomingMessage carries `url`. */
+function isIncomingMessage(request: ClientRequest | IncomingMessage): request is IncomingMessage {
+  return typeof (request as IncomingMessage).httpVersion === "string";
 }
 
 // ---------- Jobs ----------

@@ -2,7 +2,12 @@
   "name": "owlpane-sdk",
   "private": true,
   "description": "Owlpane customer SDKs (@owlpane/node, @owlpane/browser)",
-  "workspaces": ["packages/node", "packages/browser", "codegen"],
+  "workspaces": [
+    "packages/node",
+    "packages/browser",
+    "codegen",
+    "packages/cli"
+  ],
   "scripts": {
     "codegen": "tsx codegen/generate.ts",
     "schema:validate": "node scripts/validate-schema.mjs",
@@ -18,5 +23,7 @@
     "ajv": "^8.17.1",
     "tsx": "^4.20.6"
   },
-  "engines": { "node": ">=20.6" }
+  "engines": {
+    "node": ">=20.6"
+  }
 }
