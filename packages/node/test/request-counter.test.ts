@@ -11,7 +11,7 @@ import { after, before, describe, it } from "node:test";
 
 // OTLP protobuf body does not always include the metric name as a plain substring in Node 20 exports;
 // counter wiring is covered by code review + manual smoke. Re-enable when we decode ExportMetricsServiceRequest.
-describe("http.server.request.count is unsampled", { skip: "OTLP export assertion needs protobuf decode" }, () => {
+describe("http.server.request.count is unsampled", { skip: process.env.OWLPANE_SDK_COUNTER_TEST === "1" ? false : "Set OWLPANE_SDK_COUNTER_TEST=1 to run OTLP body assertion" }, () => {
   const received: Array<{ url: string; body: Buffer }> = [];
   let collector: http.Server;
 
