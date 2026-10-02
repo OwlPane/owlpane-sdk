@@ -25,6 +25,7 @@ import {
   ATTR_SERVICE_NAME,
   ATTR_SERVICE_VERSION,
 } from "@opentelemetry/semantic-conventions";
+import { startProfiler, type ProfilerHandle } from "./profiler";
 import { serviceCatalogAttributes, mobileResource, setExperiment, setFeatureFlag, testCase, pipeline, recordFinding, FINDING_KINDS } from "./signals";
 export { mobileResource, setExperiment, setFeatureFlag, testCase, pipeline, recordFinding, FINDING_KINDS };
 export type { FindingKind, MobilePlatform } from "./signals";
@@ -56,11 +57,14 @@ export type InitOptions = {
   disableInstrumentations?: string[];
   /** When true, setUser may record enduser.email / enduser.name (off by default). */
   traceUserProfile?: boolean;
+  /** CPU profiling: a short V8 sampling profile every minute, sent as `profile.cpu` spans. Off by default; also OWLPANE_PROFILING=1. */
+  profiling?: boolean;
 };
 
 let sdk: NodeSDK | undefined;
 let logProvider: LoggerProvider | undefined;
 let traceUserProfile = false;
+let profiler: ProfilerHandle | undefined;
 
 /** Whether setUser may attach email/name (requires start({ traceUserProfile: true }) or OWLPANE_TRACE_USER_PROFILE=1). */
 export function traceUserProfileEnabled(): boolean {
@@ -208,15 +212,20 @@ export function start(options: InitOptions = {}): void {
 
   sdk.start();
   registerProcessMetrics(serviceName);
+  if (options.profiling === true || ["1", "true", "yes"].includes((process.env.OWLPANE_PROFILING ?? "").trim().toLowerCase())) {
+    profiler = startProfiler({ endpoint: baseUrl, headers, resource });
+  }
 }
 
 /** Flushes and stops the pipeline. Call on shutdown so the last batch of spans isn't dropped. */
 export function shutdown(): Promise<void> {
   const s = sdk;
   const logs = logProvider;
+  const prof = profiler;
   sdk = undefined;
   logProvider = undefined;
-  return Promise.all([s?.shutdown(), logs?.shutdown()]).then(() => undefined);
+  profiler = undefined;
+  return Promise.all([s?.shutdown(), logs?.shutdown(), prof?.stop()]).then(() => undefined);
 }
 
 // ---------- HTTP request counter (unsampled) ----------
