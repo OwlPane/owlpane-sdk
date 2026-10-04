@@ -1,4 +1,4 @@
-module github.com/balaji-singh/owlpane-sdk/packages/go
+module github.com/OwlPane/owlpane-sdk/packages/go
 
 go 1.22.0
 

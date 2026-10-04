@@ -4,7 +4,7 @@ Customer-facing packages:
 
 - `@owlpane/node` — `packages/node` (full) — **[npmjs.com](https://www.npmjs.com/package/@owlpane/node)**
 - `@owlpane/browser` — `packages/browser` (full) — **[npmjs.com](https://www.npmjs.com/package/@owlpane/browser)**
-- `github.com/balaji-singh/owlpane-sdk/packages/go` — `packages/go` (thin, generated env + hand OTel)
+- `github.com/OwlPane/owlpane-sdk/packages/go` — `packages/go` (thin, generated env + hand OTel)
 - `owlpane` (PyPI-style) — `packages/python` (thin)
 - `com.owlpane:owlpane-java` — `packages/java` (thin, use with the OTel Java agent)
 - `owlpane` (RubyGems) — `packages/ruby` (thin env bootstrap, use with OpenTelemetry Ruby)

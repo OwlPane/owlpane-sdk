@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/balaji-singh/owlpane-sdk/packages/go/owlpane"
+	"github.com/OwlPane/owlpane-sdk/packages/go/owlpane"
 )
 
 func TestResolveConfigFromEnv_missingEndpoint(t *testing.T) {
