@@ -1,8 +1,8 @@
 {
   "version": 1,
   "go": {
-    "module": "github.com/balaji-singh/owlpane-sdk/packages/go/owlpane",
-    "goGet": "go get github.com/balaji-singh/owlpane-sdk/packages/go@v0.1.4",
+    "module": "github.com/OwlPane/owlpane-sdk/packages/go/owlpane",
+    "goGet": "go get github.com/OwlPane/owlpane-sdk/packages/go@v0.1.5",
     "env": [
       "OTEL_EXPORTER_OTLP_ENDPOINT=https://ingest.example.com",
       "OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf",
@@ -10,11 +10,11 @@
       "OTEL_SERVICE_NAME=my-service",
       "OWLPANE_ENVIRONMENT=production"
     ],
-    "code": "import \"github.com/balaji-singh/owlpane-sdk/packages/go/owlpane\"\n\nshutdown, err := owlpane.Start(context.Background(), nil)\n// … app …\n_ = shutdown(context.Background())"
+    "code": "import \"github.com/OwlPane/owlpane-sdk/packages/go/owlpane\"\n\nshutdown, err := owlpane.Start(context.Background(), nil)\n// … app …\n_ = shutdown(context.Background())"
   },
   "python": {
     "package": "owlpane",
-    "pip": "pip install owlpane==0.1.4",
+    "pip": "pip install owlpane==0.1.5",
     "env": [
       "OTEL_EXPORTER_OTLP_ENDPOINT=https://ingest.example.com",
       "OWLPANE_INGEST_KEY=owl_ing_…",
@@ -24,18 +24,18 @@
   },
   "node": {
     "package": "@owlpane/node",
-    "npm": "npm install @owlpane/node@0.1.4",
+    "npm": "npm install @owlpane/node@0.1.5",
     "registry": "https://registry.npmjs.org"
   },
   "browser": {
     "package": "@owlpane/browser",
-    "npm": "npm install @owlpane/browser@0.1.4",
+    "npm": "npm install @owlpane/browser@0.1.5",
     "registry": "https://registry.npmjs.org"
   },
   "java": {
     "package": "com.owlpane:owlpane-java",
-    "maven": "com.owlpane:owlpane-java:0.1.4",
-    "githubPackages": "https://maven.pkg.github.com/balaji-singh/owlpane-sdk",
+    "maven": "com.owlpane:owlpane-java:0.1.5",
+    "githubPackages": "https://maven.pkg.github.com/OwlPane/owlpane-sdk",
     "env": [
       "OTEL_EXPORTER_OTLP_ENDPOINT=https://ingest.example.com",
       "OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf",
@@ -46,7 +46,7 @@
   },
   "ruby": {
     "package": "owlpane",
-    "gem": "gem install owlpane -v 0.1.4",
+    "gem": "gem install owlpane -v 0.1.5",
     "githubPackages": "https://rubygems.pkg.github.com/balaji-singh",
     "env": [
       "OTEL_EXPORTER_OTLP_ENDPOINT=https://ingest.example.com",

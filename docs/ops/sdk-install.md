@@ -11,17 +11,17 @@ Pin a version in `package.json`:
 ```json
 {
   "dependencies": {
-    "@owlpane/node": "^0.1.4",
-    "@owlpane/browser": "^0.1.4"
+    "@owlpane/node": "^0.1.5",
+    "@owlpane/browser": "^0.1.5"
   }
 }
 ```
 
 ## Publishing (maintainers)
 
-Releases are published on every `sdk-v*` tag from [owlpane-sdk](https://github.com/balaji-singh/owlpane-sdk) via `.github/workflows/publish-sdk.yml`.
+Releases are published on every `sdk-v*` tag from [owlpane-sdk](https://github.com/OwlPane/owlpane-sdk) via `.github/workflows/publish-sdk.yml`.
 
 - Add **`NPM_TOKEN`** (npm automation token with publish access to the **`@owlpane`** scope) in the repo secrets.
 - Create the **`@owlpane`** org on [npmjs.com](https://www.npmjs.com) and grant the token publish rights before the first release.
 
-Legacy GitHub Packages (`@balaji-singh/owlpane-*`) is no longer used for Node/Browser.
+Legacy GitHub Packages (`@owlpane/owlpane-*`) is no longer used for Node/Browser.

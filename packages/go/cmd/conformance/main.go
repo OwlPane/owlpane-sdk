@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/balaji-singh/owlpane-sdk/packages/go/owlpane"
+	"github.com/OwlPane/owlpane-sdk/packages/go/owlpane"
 )
 
 func main() {

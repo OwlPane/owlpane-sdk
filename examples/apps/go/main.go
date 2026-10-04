@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/balaji-singh/owlpane-sdk/packages/go/owlpane"
+	"github.com/OwlPane/owlpane-sdk/packages/go/owlpane"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 )
