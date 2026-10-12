@@ -18,6 +18,22 @@ owlpane test import junit junit.xml
 owlpane coverage import lcov coverage/lcov.info
 ```
 
+## Preview a Prometheus alert migration
+
+```bash
+export OWLPANE_API_URL=https://api.example.com
+export OWLPANE_TOKEN=owl_pat_…        # a read-only API token (Settings, API tokens); an ingest key is refused
+
+owlpane alerts import prometheus rules.yaml
+kubectl get prometheusrules -A -o yaml | owlpane alerts import prometheus -     # - reads stdin
+owlpane alerts import prometheus rules.yaml --json > plan.json                   # the full plan
+```
+
+It prints, for each rule, whether Owlpane can `translate` it, only `approximate` it (with what differs), or not
+translate it (with why). It is a dry run: nothing is saved, proposed rules are disabled, and the exit code is 0
+whatever the result. Owlpane alert rules measure fixed built-in metrics, not free PromQL, so expect some rules to
+be unsupported. Details: `docs/migrations/from-prometheus.md` in `owlpane-api`.
+
 Repository, branch, commit and run id are read from GitHub Actions, GitLab CI, CircleCI, Buildkite or Jenkins
 variables. A secret's value is never uploaded or stored: importers keep where it was found, not what it was.
 

@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
-import { config, requireKey } from './config.mjs'
+import { config, requireApiToken, requireKey } from './config.mjs'
+import { formatPlan, previewPrometheus } from './alerts.mjs'
 import { detectCi } from './ci-env.mjs'
 import { hex, sendSpans, span } from './otlp.mjs'
 import { parseJunit } from './junit.mjs'
@@ -13,11 +14,13 @@ const HELP = `owlpane — send delivery and security data to Owlpane
   owlpane ci report --pipeline NAME --result success|failure|cancelled [--duration-ms N] [--deploy ENV] [--commit-time ISO] [--rollback]
   owlpane test import junit <file> [--suite NAME]
   owlpane coverage import <lcov|cobertura|json-summary> <file>
+  owlpane alerts import prometheus <file|-> [--json]     preview how Prometheus alerting rules map to Owlpane rules (saves nothing)
 
 Environment
   OWLPANE_INGEST_KEY   write-only ingest key (owl_ing_…)
   OWLPANE_INGEST_URL   OTLP ingest endpoint (CI runs, tests, coverage)
-  OWLPANE_API_URL      API endpoint (security findings)
+  OWLPANE_API_URL      API endpoint (security findings, alert import preview)
+  OWLPANE_TOKEN        read-only API token (owl_pat_…) for commands that read, such as alerts import
 `
 
 function flags(argv) {
@@ -64,6 +67,15 @@ export async function main(argv, env = process.env, log = console.log) {
     const body = await res.json().catch(() => ({}))
     if (!res.ok) throw new Error(`import failed: ${res.status} ${body.message ?? ''}`)
     return log(`imported ${body.received} findings: ${body.created} new, ${body.updated} updated, ${body.fixed} fixed, ${body.skipped} skipped`)
+  }
+
+  if (cmd === 'alerts' && sub === 'import') {
+    const { pos, f } = flags(tail)
+    const [format, file] = pos
+    if (format !== 'prometheus' || !file) throw new Error('usage: owlpane alerts import prometheus <file|-> [--json]')
+    requireApiToken(c)
+    const plan = await previewPrometheus(c, readFileSync(file === '-' ? 0 : file, 'utf8'))
+    return log(f.json ? JSON.stringify(plan, null, 2) : formatPlan(plan))
   }
 
   if (cmd === 'ci' && (sub === 'run' || sub === 'report')) {
