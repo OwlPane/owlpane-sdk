@@ -9,7 +9,7 @@ export OWLPANE_API_URL=https://api.example.com         # API endpoint (findings)
 
 # Security: SARIF (Semgrep, CodeQL, Checkov…), Trivy JSON, gitleaks, OSV-Scanner, CycloneDX SBOM
 semgrep scan --sarif -o report.sarif
-owlpane findings import sarif report.sarif --complete      # --complete marks findings the scan no longer reports as fixed
+owlpane findings import sarif report.sarif --complete      # --complete also closes findings this scan no longer reports (read the note below)
 
 # Delivery
 owlpane ci run --pipeline storefront-ci -- npm test            # times the command, reports pass/fail
@@ -48,6 +48,8 @@ owlpane dashboards import grafana dashboards.json --json > plan.json   # the ful
 For each panel query it prints the Owlpane metric widget it would become, or why none fits (histogram quantiles,
 tables, arithmetic between queries and non-Prometheus data sources have no widget). Like the alert preview it saves
 nothing, and the exit code is 0 whatever the result. Details: `docs/migrations/from-grafana-dashboards.md` in `owlpane-api`.
+
+**`--complete`** marks open findings of the file's kind as fixed when the scan no longer reports them. It is limited by the `--repo` and `--service` you give. The repository is read from GitHub Actions, GitLab CI, CircleCI, Buildkite or Jenkins variables when you do not pass `--repo`; the service is never detected. So pass `--repo` anywhere else (a laptop, or a CI system the CLI does not recognise): with no repository the sweep covers every repo in your workspace for that kind, and with no `--service` it covers every service in the repo. The CLI prints a warning when `--complete` has no repository.
 
 Repository, branch, commit and run id are read from GitHub Actions, GitLab CI, CircleCI, Buildkite or Jenkins
 variables. A secret's value is never uploaded or stored: importers keep where it was found, not what it was.

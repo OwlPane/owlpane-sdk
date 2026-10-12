@@ -52,7 +52,7 @@ const ciAttrs = (ci, extra = {}) => ({
   ...extra,
 })
 
-export async function main(argv, env = process.env, log = console.log) {
+export async function main(argv, env = process.env, log = console.log, warn = console.error) {
   const [cmd, sub, ...tail] = argv
   const c = config(env)
   if (!cmd || cmd === 'help' || cmd === '--help') return log(HELP)
@@ -64,7 +64,10 @@ export async function main(argv, env = process.env, log = console.log) {
     requireKey(c)
     if (!c.api) throw new Error('OWLPANE_API_URL is not set.')
     const ci = detectCi(env)
-    const q = new URLSearchParams({ repo: String(f.repo || ci.repo || ''), ...(f.service ? { service: String(f.service) } : {}), ...(f.kind ? { kind: String(f.kind) } : {}), ...(f.complete ? { complete: '1' } : {}) })
+    const repo = String(f.repo || ci.repo || '')
+    // The API treats an empty repo as "every repo", so a sweep with none reaches the whole workspace. Say so; do not stop it.
+    if (f.complete && !repo) warn('owlpane: warning: --complete without a repository marks open findings of this kind as fixed across your whole workspace. Pass --repo URL to limit it.')
+    const q = new URLSearchParams({ repo, ...(f.service ? { service: String(f.service) } : {}), ...(f.kind ? { kind: String(f.kind) } : {}), ...(f.complete ? { complete: '1' } : {}) })
     const res = await fetch(`${c.api}/v1/findings/import/${format}?${q}`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${c.key}` }, body: readFileSync(file) })
     const body = await res.json().catch(() => ({}))
     if (!res.ok) throw new Error(`import failed: ${res.status} ${body.message ?? ''}`)
