@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { config, requireApiToken, requireKey } from './config.mjs'
 import { formatPlan, previewPrometheus } from './alerts.mjs'
+import { formatDashboardPlan, previewGrafana } from './dashboards.mjs'
 import { detectCi } from './ci-env.mjs'
 import { hex, sendSpans, span } from './otlp.mjs'
 import { parseJunit } from './junit.mjs'
@@ -15,12 +16,13 @@ const HELP = `owlpane — send delivery and security data to Owlpane
   owlpane test import junit <file> [--suite NAME]
   owlpane coverage import <lcov|cobertura|json-summary> <file>
   owlpane alerts import prometheus <file|-> [--json]     preview how Prometheus alerting rules map to Owlpane rules (saves nothing)
+  owlpane dashboards import grafana <file|-> [--json]    preview how Grafana panels map to Owlpane widgets (saves nothing)
 
 Environment
   OWLPANE_INGEST_KEY   write-only ingest key (owl_ing_…)
   OWLPANE_INGEST_URL   OTLP ingest endpoint (CI runs, tests, coverage)
-  OWLPANE_API_URL      API endpoint (security findings, alert import preview)
-  OWLPANE_TOKEN        read-only API token (owl_pat_…) for commands that read, such as alerts import
+  OWLPANE_API_URL      API endpoint (security findings, import previews)
+  OWLPANE_TOKEN        read-only API token (owl_pat_…) for commands that read, such as alerts import and dashboards import
 `
 
 function flags(argv) {
@@ -76,6 +78,15 @@ export async function main(argv, env = process.env, log = console.log) {
     requireApiToken(c)
     const plan = await previewPrometheus(c, readFileSync(file === '-' ? 0 : file, 'utf8'))
     return log(f.json ? JSON.stringify(plan, null, 2) : formatPlan(plan))
+  }
+
+  if (cmd === 'dashboards' && sub === 'import') {
+    const { pos, f } = flags(tail)
+    const [format, file] = pos
+    if (format !== 'grafana' || !file) throw new Error('usage: owlpane dashboards import grafana <file|-> [--json]')
+    requireApiToken(c)
+    const plan = await previewGrafana(c, readFileSync(file === '-' ? 0 : file, 'utf8'))
+    return log(f.json ? JSON.stringify(plan, null, 2) : formatDashboardPlan(plan))
   }
 
   if (cmd === 'ci' && (sub === 'run' || sub === 'report')) {
