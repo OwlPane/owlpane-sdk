@@ -1,3 +1,5 @@
+import { plural, postPreview } from './preview.mjs'
+
 /** The server accepts up to 2 MB of rules text; fail here with a clear message instead of after the upload. */
 export const MAX_RULES_BYTES = 2_000_000
 
@@ -6,8 +8,6 @@ export function describeRule(rule) {
   const scope = [rule.service && `service ${rule.service}`, rule.environment && `environment ${rule.environment}`].filter(Boolean)
   return `${rule.metric} ${rule.comparator === 'lt' ? '<' : '>'} ${rule.threshold} over ${rule.windowMinutes} min${scope.length ? ` (${scope.join(', ')})` : ''}`
 }
-
-const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`
 
 /** The preview as text a person can read in a terminal or a CI log. */
 export function formatPlan(plan) {
@@ -31,12 +31,5 @@ export function formatPlan(plan) {
 /** POST the rules text to the dry-run endpoint and return the plan. Saves nothing on the server. */
 export async function previewPrometheus(c, text, fetchImpl = fetch) {
   if (Buffer.byteLength(text) > MAX_RULES_BYTES) throw new Error(`rules text is over ${MAX_RULES_BYTES / 1_000_000} MB; split the file`)
-  const res = await fetchImpl(`${c.api}/v1/alerts/import/prometheus/preview`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', authorization: `Bearer ${c.token}` },
-    body: JSON.stringify({ rules: text }),
-  })
-  const body = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(`preview failed: ${res.status} ${body.message ?? ''}`.trim())
-  return body
+  return postPreview(c, '/v1/alerts/import/prometheus/preview', { rules: text }, fetchImpl)
 }

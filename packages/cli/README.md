@@ -34,6 +34,21 @@ translate it (with why). It is a dry run: nothing is saved, proposed rules are d
 whatever the result. Owlpane alert rules measure fixed built-in metrics, not free PromQL, so expect some rules to
 be unsupported. Details: `docs/migrations/from-prometheus.md` in `owlpane-api`.
 
+## Preview a Grafana dashboard migration
+
+```bash
+export OWLPANE_API_URL=https://api.example.com
+export OWLPANE_TOKEN=owl_pat_…        # the same read-only API token
+
+owlpane dashboards import grafana dashboard.json                    # a Grafana export (or the API's { dashboard } wrapper)
+curl -s -H "Authorization: Bearer $GRAFANA_TOKEN" "$GRAFANA/api/dashboards/uid/<uid>" | owlpane dashboards import grafana -
+owlpane dashboards import grafana dashboards.json --json > plan.json   # the full plan, with a body POST /v1/dashboards accepts
+```
+
+For each panel query it prints the Owlpane metric widget it would become, or why none fits (histogram quantiles,
+tables, arithmetic between queries and non-Prometheus data sources have no widget). Like the alert preview it saves
+nothing, and the exit code is 0 whatever the result. Details: `docs/migrations/from-grafana-dashboards.md` in `owlpane-api`.
+
 Repository, branch, commit and run id are read from GitHub Actions, GitLab CI, CircleCI, Buildkite or Jenkins
 variables. A secret's value is never uploaded or stored: importers keep where it was found, not what it was.
 
