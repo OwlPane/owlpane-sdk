@@ -18,6 +18,13 @@ owlpane test import junit junit.xml
 owlpane coverage import lcov coverage/lcov.info
 ```
 
+**`--complete`** marks open findings of the file's kind as fixed when the scan no longer reports them. It is limited by the `--repo` and `--service` you give. The repository is read from GitHub Actions, GitLab CI, CircleCI, Buildkite or Jenkins variables when you do not pass `--repo`; the service is never detected. So pass `--repo` anywhere else (a laptop, or a CI system the CLI does not recognise): with no repository the sweep covers every repo in your workspace for that kind, and with no `--service` it covers every service in the repo. The CLI prints a warning when `--complete` has no repository.
+
+Repository, branch, commit and run id are read from GitHub Actions, GitLab CI, CircleCI, Buildkite or Jenkins
+variables. A secret's value is never uploaded or stored: importers keep where it was found, not what it was.
+
+**GitHub Action:** `sdk/actions/scan/action.yml` wraps the same commands.
+
 ## Preview a Prometheus alert migration
 
 ```bash
@@ -48,13 +55,6 @@ owlpane dashboards import grafana dashboards.json --json > plan.json   # the ful
 For each panel query it prints the Owlpane metric widget it would become, or why none fits (histogram quantiles,
 tables, arithmetic between queries and non-Prometheus data sources have no widget). Like the alert preview it saves
 nothing, and the exit code is 0 whatever the result. Details: `docs/migrations/from-grafana-dashboards.md` in `owlpane-api`.
-
-**`--complete`** marks open findings of the file's kind as fixed when the scan no longer reports them. It is limited by the `--repo` and `--service` you give. The repository is read from GitHub Actions, GitLab CI, CircleCI, Buildkite or Jenkins variables when you do not pass `--repo`; the service is never detected. So pass `--repo` anywhere else (a laptop, or a CI system the CLI does not recognise): with no repository the sweep covers every repo in your workspace for that kind, and with no `--service` it covers every service in the repo. The CLI prints a warning when `--complete` has no repository.
-
-Repository, branch, commit and run id are read from GitHub Actions, GitLab CI, CircleCI, Buildkite or Jenkins
-variables. A secret's value is never uploaded or stored: importers keep where it was found, not what it was.
-
-**GitHub Action:** `sdk/actions/scan/action.yml` wraps the same commands.
 
 **Status:** this package lives in the repository and is not published to npm yet; run it as
 `node sdk/packages/cli/bin/owlpane.mjs …` until it is.
