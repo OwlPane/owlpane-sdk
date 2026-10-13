@@ -242,7 +242,7 @@ _ = shutdown(context.Background())`,
     ruby: {
       package: "owlpane",
       gem: `gem install owlpane -v ${v}`,
-      githubPackages: "https://rubygems.pkg.github.com/balaji-singh",
+      githubPackages: "https://rubygems.pkg.github.com/owlpane",
       env: [
         "OTEL_EXPORTER_OTLP_ENDPOINT=https://ingest.example.com",
         "OWLPANE_INGEST_KEY=owl_ing_…",
