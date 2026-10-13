@@ -4,6 +4,7 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 OWNER="${GITHUB_REPOSITORY%%/*}"
+OWNER="${OWNER,,}"   # GitHub Packages paths are documented lowercase (rubygems.pkg.github.com/owlpane)
 VERSION="$(node -p "require('./packages/node/package.json').version")"
 TOKEN="${PACKAGES_TOKEN:-${GITHUB_TOKEN:-}}"
 REGISTRY_NPMJS="https://registry.npmjs.org"

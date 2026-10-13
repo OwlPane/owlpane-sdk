@@ -24,4 +24,4 @@ Releases are published on every `sdk-v*` tag from [owlpane-sdk](https://github.c
 - Add **`NPM_TOKEN`** (npm automation token with publish access to the **`@owlpane`** scope) in the repo secrets.
 - Create the **`@owlpane`** org on [npmjs.com](https://www.npmjs.com) and grant the token publish rights before the first release.
 
-Legacy GitHub Packages (`/owlpane-*`) is no longer used for Node/Browser.
+Legacy GitHub Packages (`@owlpane/owlpane-*`) is no longer used for Node/Browser.

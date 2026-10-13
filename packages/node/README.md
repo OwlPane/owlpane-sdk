@@ -31,6 +31,11 @@ node --import @owlpane/node/register dist/main.js
 Track a background job: `await owlpane.job("nightly-report", "cron", {}, async () => { ... })`.
 Tag the signed-in user (opaque id only): `owlpane.setUser(user.id)`. Email and name are **not** recorded unless you opt in with `traceUserProfile: true` or `OWLPANE_TRACE_USER_PROFILE=1` (discouraged for production).
 
+## CPU profiling (opt-in)
+
+`owlpane.start({ profiling: true })` or `OWLPANE_PROFILING=1` takes a 10-second V8 sampling profile (10 ms interval) every minute and sends the functions that used the most CPU as `profile.cpu` spans, which the Profiler page shows as a flame view. They use their own tracer, so `sampleRatio` never drops them. It profiles CPU only (no heap or allocation profile), and the overhead has not been measured: try it on one instance first. `shutdown()` ends the current window early and sends what it has.
+
+
 These helpers set the attributes the console pages filter on. They do nothing useful until `start()` has an endpoint, except `mobileResource`, which only returns attributes for you to pass in:
 
 | Helper | Attribute | Console page |
