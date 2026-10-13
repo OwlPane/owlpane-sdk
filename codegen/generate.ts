@@ -192,8 +192,8 @@ function generateInstallSnippets(): void {
   const snippets = {
     version: 1,
     go: {
-      module: "github.com/balaji-singh/owlpane-sdk/packages/go/owlpane",
-      goGet: `go get github.com/balaji-singh/owlpane-sdk/packages/go@v${v}`,
+      module: "github.com/OwlPane/owlpane-sdk/packages/go/owlpane",
+      goGet: `go get github.com/OwlPane/owlpane-sdk/packages/go@v${v}`,
       env: [
         "OTEL_EXPORTER_OTLP_ENDPOINT=https://ingest.example.com",
         "OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf",
@@ -201,7 +201,7 @@ function generateInstallSnippets(): void {
         "OTEL_SERVICE_NAME=my-service",
         "OWLPANE_ENVIRONMENT=production",
       ],
-      code: `import "github.com/balaji-singh/owlpane-sdk/packages/go/owlpane"
+      code: `import "github.com/OwlPane/owlpane-sdk/packages/go/owlpane"
 
 shutdown, err := owlpane.Start(context.Background(), nil)
 // … app …
@@ -230,7 +230,7 @@ _ = shutdown(context.Background())`,
     java: {
       package: "com.owlpane:owlpane-java",
       maven: `com.owlpane:owlpane-java:${v}`,
-      githubPackages: "https://maven.pkg.github.com/balaji-singh/owlpane-sdk",
+      githubPackages: "https://maven.pkg.github.com/OwlPane/owlpane-sdk",
       env: [
         "OTEL_EXPORTER_OTLP_ENDPOINT=https://ingest.example.com",
         "OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf",

@@ -6,7 +6,7 @@
     "start": "node --import tsx src/main.ts"
   },
   "dependencies": {
-    "@owlpane/node": "^0.1.4"
+    "@owlpane/node": "^0.1.5"
   },
   "devDependencies": {
     "tsx": "^4.20.6",

@@ -3,7 +3,7 @@ import path from "node:path";
 import { execSync } from "node:child_process";
 
 const root = path.resolve(import.meta.dirname, "..");
-const owner = process.env.GITHUB_REPOSITORY_OWNER || "balaji-singh";
+const owner = process.env.GITHUB_REPOSITORY_OWNER || "owlpane";
 const registry =
   process.env.NPM_CONFIG_REGISTRY || "https://npm.pkg.github.com";
 const tag = process.env.GITHUB_REF_NAME || "";
