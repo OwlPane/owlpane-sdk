@@ -48,8 +48,8 @@ const rum = init({
           : [],
     },
     location: {
-      href: "http://127.0.0.1:5173/checkout?utm_source=test",
-      origin: "http://127.0.0.1:5173",
+      href: `${(process.env.OWLPANE_CONSOLE_URL ?? "http://127.0.0.1:4200").replace(/\/+$/, "")}/checkout?utm_source=test`,
+      origin: (process.env.OWLPANE_CONSOLE_URL ?? "http://127.0.0.1:4200").replace(/\/+$/, ""),
       pathname: "/checkout",
     },
     document: {

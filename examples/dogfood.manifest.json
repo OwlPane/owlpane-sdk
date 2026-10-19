@@ -36,6 +36,18 @@
       "project": "owlpane-sdk-browser",
       "dir": "apps/browser",
       "ingestKeyEnv": "OWLPANE_INGEST_KEY_BROWSER"
+    },
+    {
+      "id": "demo-server",
+      "project": "owlpane-demo-server",
+      "dir": "apps/demo-server",
+      "ingestKeyEnv": "OWLPANE_INGEST_KEY_DEMO"
+    },
+    {
+      "id": "pii-canary",
+      "project": "pii-canary",
+      "dir": "pii-canary",
+      "ingestKeyEnv": "OWLPANE_INGEST_KEY_PII"
     }
   ]
 }

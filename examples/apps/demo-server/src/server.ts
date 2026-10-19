@@ -74,14 +74,14 @@ async function emitSyntheticCycle(): Promise<void> {
           severityNumber: SeverityNumber.ERROR,
           severityText: "ERROR",
           body: err.message,
-          attributes: { "http.route": route, tick },
+          attributes: { "http.route": route, tick, "customer.tier": "silver" },
         });
       } else {
         logger.emit({
           severityNumber: SeverityNumber.INFO,
           severityText: "INFO",
           body: `Processed ${route} (tick #${tick})`,
-          attributes: { "http.route": route, tick },
+          attributes: { "http.route": route, tick, "customer.tier": tick % 2 === 0 ? "gold" : "silver" },
         });
       }
 

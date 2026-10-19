@@ -26,13 +26,36 @@ chmod +x run-dogfood.sh scripts/onboard-dogfood.sh scripts/run-local-demo.sh app
 
 Set `OWLPANE_DOGFOOD_MODE=rich` to emit multi-span traces (`GET /demo` + `SELECT orders`), error spans with recorded exceptions (`POST /checkout`), OTLP metrics (`owlpane.dogfood.requests`, `http.server.request.duration`), and trace-correlated structured logs.
 
-## Local full-stack test (`:4318` cell + `:4100` API + `:5173` console)
+## Local dogfood (localhost API + ingest)
+
+Copy [`.env.local.example`](.env.local.example) to `.env`. Point **`OWLPANE_API_URL`** and **`OWLPANE_INGEST_URL`** at your local stack (default `http://localhost:4100` and `http://localhost:4318`). Run `./scripts/onboard-dogfood.sh --write-env` then `./run-dogfood.sh`.
+
+Do **not** use SaaS credentials against localhost unless you set `OWLPANE_DOGFOOD_ALLOW_LOCALHOST=1` (discouraged).
+
+## SaaS dogfood (production ingest)
+
+Copy [`.env.saas.example`](.env.saas.example) to `.env`. Set **`OWLPANE_INGEST_URL`** from console **Setup → Projects & keys** (same value the API advertises as public ingest), plus **`OWLPANE_ONBOARD_PASSWORD`**. **`OWLPANE_API_URL`** must be the public API host (e.g. `https://owlpane-api.crikiq.com`), not localhost.
+
+```bash
+chmod +x scripts/run-saas-dogfood.sh scripts/onboard-dogfood.sh run-dogfood.sh
+./scripts/run-saas-dogfood.sh              # onboard + one rich burst (8 projects incl. demo + PII)
+./scripts/run-saas-dogfood.sh --loop-demo  # continuous load for Home charts
+./pii-canary/run.sh                        # optional PII scrub stream
+```
+
+**What this covers:** OTLP from all SDK runtimes, browser RUM, `owlpane-demo-server`, and project **`pii-canary`** (onboarded via `dogfood.manifest.json`).
+
+**What this does not cover:** Kubernetes cluster metrics, infra alert templates, and network/security views — those need the **[owlpane-agent](https://github.com/OwlPane/owlpane-agent)** on your cluster. Follow [kubernetes-e2e.md](https://github.com/OwlPane/owlpane-api/blob/main/docs/ops/kubernetes-e2e.md) on the API repo.
+
+Open **Applications**, **Requests**, **Logs**, and **Metrics explorer** on your workspace console (`OWLPANE_CONSOLE_URL`). Match the **Deploy env** filter to `OWLPANE_ENVIRONMENT` (e.g. `production`).
+
+## Local full-stack test (`:4318` cell + `:4100` API + `:4200` console)
 
 Copy [`.env.local.example`](.env.local.example) or let `run-local-demo.sh` onboard automatically against your local stack:
 
 1. **Telemetry cell**: Start the local ingest gateway on `http://127.0.0.1:4318` (and ClickHouse storage).
 2. **Control plane API**: Start `owlpane/api` on `http://127.0.0.1:4100`.
-3. **Web console**: Start `owlpane/console` on `http://127.0.0.1:5173`.
+3. **Web console**: Start `owlpane/console` on `http://127.0.0.1:4200` (Vite proxies `/v1` to the API).
 4. **Emit one-shot rich telemetry across all runtimes**:
    ```bash
    ./scripts/run-local-demo.sh --once
@@ -42,14 +65,15 @@ Copy [`.env.local.example`](.env.local.example) or let `run-local-demo.sh` onboa
    ./scripts/run-local-demo.sh --loop
    ```
 
-### Console verification checklist (`http://127.0.0.1:5173`)
+### Console verification checklist (`http://127.0.0.1:4200`)
 
 - **Applications**: Open **Applications** and select **development** environment to see `owlpane-sdk-node`, `owlpane-sdk-python`, `owlpane-sdk-go`, `owlpane-sdk-java`, and `owlpane-sdk-ruby`.
-- **Traces**: Open **Traces** (`/observability/traces`) and inspect `GET /demo` (with child `SELECT orders` DB span) and `POST /checkout` (with recorded error exception).
-- **Logs**: Open **Logs** (`/observability/logs`) and filter by `owlpane-sdk-node` or `owlpane-demo-server` to verify trace-correlated log records.
-- **Metrics**: Open **Metrics** (`/observability/metrics`) and query `owlpane.dogfood.requests` or `http.server.request.duration`.
+- **Requests**: Open **Requests** (`/observability/requests`) and inspect `GET /demo` (with child `SELECT orders` DB span) and `POST /checkout` (with recorded error exception). Open a trace and use **full screen** on a span detail (T9).
+- **Logs**: Open **Logs** (`/observability/logs`), filter by `owlpane-sdk-node` or `owlpane-demo-server`, verify trace-correlated log records. Expand **Fields** → **Show more values** on `customer.tier` (exact counts over the range, L3). Group **Lines over time** by `customer.tier` (L17).
+- **Search**: Open **Search**, run a span filter, use **What's different?** with baseline **Just before** (T3).
+- **Metrics**: Open **Metrics explorer** (`/observability/explorer`) and query `owlpane.dogfood.requests` or `http.server.request.duration`.
 - **Browser / Frontend RUM**: Open **Frontend** to see `owlpane-sdk-browser` `documentLoad` spans, feature flags (`checkout-redesign`), experiments (`exp-cart-2026`), and captured exceptions.
-- **Dashboards Hub**: Open **Dashboards → Library** (`/observability/dashboards/library`) or **Built-in templates** (`/observability/dashboards/templates`) and install a starter dashboard.
+- **Dashboards Hub**: Open **Dashboards → Library** (`/observability/dashboards/library`) or **Built-in templates** (`/observability/dashboards/templates`) and install a starter dashboard; try a **logs** widget grouped by an attribute (L17).
 
 ## Other samples
 
