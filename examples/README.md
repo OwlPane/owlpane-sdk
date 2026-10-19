@@ -26,9 +26,15 @@ chmod +x run-dogfood.sh scripts/onboard-dogfood.sh scripts/run-local-demo.sh app
 
 Set `OWLPANE_DOGFOOD_MODE=rich` to emit multi-span traces (`GET /demo` + `SELECT orders`), error spans with recorded exceptions (`POST /checkout`), OTLP metrics (`owlpane.dogfood.requests`, `http.server.request.duration`), and trace-correlated structured logs.
 
+## Local dogfood (localhost API + ingest)
+
+Copy [`.env.local.example`](.env.local.example) to `.env`. Point **`OWLPANE_API_URL`** and **`OWLPANE_INGEST_URL`** at your local stack (default `http://localhost:4100` and `http://localhost:4318`). Run `./scripts/onboard-dogfood.sh --write-env` then `./run-dogfood.sh`.
+
+Do **not** use SaaS credentials against localhost unless you set `OWLPANE_DOGFOOD_ALLOW_LOCALHOST=1` (discouraged).
+
 ## SaaS dogfood (production ingest)
 
-Copy [`.env.saas.example`](.env.saas.example) to `.env`. Set **`OWLPANE_INGEST_URL`** from console **Setup → Projects & keys** (same value the API advertises as public ingest), plus **`OWLPANE_ONBOARD_PASSWORD`**.
+Copy [`.env.saas.example`](.env.saas.example) to `.env`. Set **`OWLPANE_INGEST_URL`** from console **Setup → Projects & keys** (same value the API advertises as public ingest), plus **`OWLPANE_ONBOARD_PASSWORD`**. **`OWLPANE_API_URL`** must be the public API host (e.g. `https://owlpane-api.crikiq.com`), not localhost.
 
 ```bash
 chmod +x scripts/run-saas-dogfood.sh scripts/onboard-dogfood.sh run-dogfood.sh

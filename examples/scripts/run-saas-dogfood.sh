@@ -23,6 +23,16 @@ if [ "${#need[@]}" -gt 0 ]; then
   exit 1
 fi
 
+case "${OWLPANE_API_URL:-}" in
+  http://localhost:*|http://127.0.0.1:*)
+    if [ "${OWLPANE_DOGFOOD_ALLOW_LOCALHOST:-}" != "1" ]; then
+      echo "OWLPANE_API_URL points at localhost. Use .env.local + local API for dev, or copy .env.saas.example for SaaS." >&2
+      echo "To override: OWLPANE_DOGFOOD_ALLOW_LOCALHOST=1 $0" >&2
+      exit 1
+    fi
+    ;;
+esac
+
 echo "==> Onboard projects (SDK + demo-server + pii-canary) via ${OWLPANE_API_URL}"
 "$ROOT/scripts/onboard-dogfood.sh" --write-env
 
