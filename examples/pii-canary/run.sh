@@ -3,12 +3,10 @@
 #   OWLPANE_ENDPOINT=http://127.0.0.1:4319 OWLPANE_INGEST_KEY=owl_ing_... ./run.sh
 set -euo pipefail
 cd "$(dirname "$0")"
-if [ -f ../.env ]; then set -a; # shellcheck disable=SC1091
-  source ../.env; set +a; fi
-: "${OWLPANE_INGEST_KEY:?set OWLPANE_INGEST_KEY in examples/.env or env}"
-export OWLPANE_ENDPOINT="${OWLPANE_ENDPOINT:-${OWLPANE_INGEST_URL:-}}"
-: "${OWLPANE_ENDPOINT:?set OWLPANE_INGEST_URL or OWLPANE_ENDPOINT}"
-export OWLPANE_ENVIRONMENT="${OWLPANE_ENVIRONMENT:-development}"
+# shellcheck source=../_lib/dogfood-env.sh
+source ../_lib/dogfood-env.sh pii-canary
+export OWLPANE_ENDPOINT="$OWLPANE_INGEST_URL"
+export OWLPANE_INGEST_KEY="$OWLPANE_INGEST_KEY"
 if [ "${OWLPANE_SDK_SOURCE:-published}" = "local" ]; then
   npm pkg set dependencies.@owlpane/node="file:../../packages/node"
 elif [ -f .npmrc.ghpackages ]; then

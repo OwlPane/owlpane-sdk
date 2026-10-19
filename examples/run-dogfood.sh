@@ -4,6 +4,12 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 chmod +x "$ROOT/run-dogfood.sh" "$ROOT/_lib/dogfood-env.sh" "$ROOT"/apps/*/run.sh 2>/dev/null || true
 export OWLPANE_SDK_SOURCE=published
+if [ -f "$ROOT/.env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  source "$ROOT/.env"
+  set +a
+fi
 
 if [ ! -f "$ROOT/.env" ] || ! grep -q '^OWLPANE_INGEST_KEY_NODE=owl_ing_' "$ROOT/.env" 2>/dev/null; then
   echo "Onboarding SDK example projects via API (Projects & keys)…" >&2

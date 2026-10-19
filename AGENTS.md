@@ -7,7 +7,7 @@
 ## Commands
 
 - **Build & test workspace packages**: `npm test`
-- **Onboard local dogfood projects**: `./examples/scripts/onboard-dogfood.sh --write-env`
+- **Onboard dogfood projects** (local or SaaS): copy `examples/.env.local.example` or `examples/.env.saas.example` to `examples/.env`, then `./examples/scripts/onboard-dogfood.sh --write-env`
 - **Run local full-stack demo**:
   - One-shot rich telemetry (traces + metrics + logs + browser RUM): `./examples/scripts/run-local-demo.sh --once`
   - Continuous demo-server load: `./examples/scripts/run-local-demo.sh --loop`
