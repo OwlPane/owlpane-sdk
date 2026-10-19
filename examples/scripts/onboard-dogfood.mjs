@@ -5,7 +5,8 @@
  *   node scripts/onboard-dogfood.mjs --write-env
  *
  * Env:
- *   OWLPANE_API_URL          default http://127.0.0.1:4100
+ *   OWLPANE_API_URL          default http://127.0.0.1:4100 (SaaS: https://api.owlpane.com — see .env.saas.example)
+ *   OWLPANE_INGEST_URL       SaaS: https://ingest.owlpane.com
  *   OWLPANE_ONBOARD_EMAIL    default scale@owlpane.test
  *   OWLPANE_ONBOARD_PASSWORD default owlpane
  *   OWLPANE_ORG_SLUG         default scale

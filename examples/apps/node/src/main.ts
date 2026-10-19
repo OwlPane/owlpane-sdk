@@ -68,6 +68,7 @@ await tracer.startActiveSpan(
         attributes: {
           "http.route": "/demo",
           "owlpane.dogfood.mode": "rich",
+          "customer.tier": "gold",
         },
       });
       reqCounter.add(1, { "http.route": "/demo", "http.response.status_code": 200 });
@@ -98,6 +99,7 @@ if (richMode) {
         body: err.message,
         attributes: {
           "http.route": "/checkout",
+          "customer.tier": "silver",
           "error.type": "GatewayTimeoutError",
         },
       });
