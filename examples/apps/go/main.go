@@ -2,12 +2,16 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/OwlPane/owlpane-sdk/packages/go/owlpane"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -21,8 +25,45 @@ func main() {
 		log.Fatal("owlpane did not start — check examples/.env")
 	}
 
-	_, span := otel.Tracer("owlpane-dogfood").Start(ctx, "GET /demo", trace.WithSpanKind(trace.SpanKindServer))
+	rich := os.Getenv("OWLPANE_DOGFOOD_MODE") == "rich"
+	tr := otel.Tracer("owlpane-dogfood")
+
+	reqCtx, span := tr.Start(ctx, "GET /demo",
+		trace.WithSpanKind(trace.SpanKindServer),
+		trace.WithAttributes(
+			attribute.String("http.request.method", "GET"),
+			attribute.String("http.route", "/demo"),
+			attribute.Int("http.response.status_code", 200),
+		),
+	)
+	time.Sleep(25 * time.Millisecond)
+	if rich {
+		_, dbSpan := tr.Start(reqCtx, "SELECT orders",
+			trace.WithSpanKind(trace.SpanKindClient),
+			trace.WithAttributes(
+				attribute.String("db.system", "postgresql"),
+				attribute.String("db.operation.name", "SELECT"),
+			),
+		)
+		time.Sleep(10 * time.Millisecond)
+		dbSpan.End()
+	}
 	span.End()
+
+	if rich {
+		_, errSpan := tr.Start(ctx, "POST /checkout",
+			trace.WithSpanKind(trace.SpanKindServer),
+			trace.WithAttributes(
+				attribute.String("http.request.method", "POST"),
+				attribute.String("http.route", "/checkout"),
+				attribute.Int("http.response.status_code", 500),
+			),
+		)
+		checkoutErr := errors.New("upstream ledger connection refused")
+		errSpan.RecordError(checkoutErr)
+		errSpan.SetStatus(codes.Error, checkoutErr.Error())
+		errSpan.End()
+	}
 
 	if err := shutdown(ctx); err != nil {
 		log.Fatal(err)

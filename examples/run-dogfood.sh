@@ -27,5 +27,6 @@ run_app go
 run_app python
 run_app java
 run_app ruby
+run_app browser
 echo ""
 echo "Done. Console → Applications (per runtime) or Traces · filter by service owlpane-sdk-* · env ${OWLPANE_ENVIRONMENT:-development}."

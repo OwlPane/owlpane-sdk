@@ -1,0 +1,15 @@
+{
+  "name": "owlpane-dogfood-demo-server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --import tsx src/server.ts"
+  },
+  "dependencies": {
+    "@owlpane/node": "^0.1.5"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

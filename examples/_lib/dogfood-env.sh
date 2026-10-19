@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Load shared ingest settings + per-app onboarding (project key + service.name).
-# Usage: source "$(dirname "$0")/dogfood-env.sh" <app-id>   # node | go | python | java | ruby
+# Usage: source "$(dirname "$0")/dogfood-env.sh" <app-id>   # node | go | python | java | ruby | browser
 set -euo pipefail
 
 _LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-${0}}")" && pwd)"
@@ -83,6 +83,7 @@ case "$APP_ID" in
   java) LANG_ATTR="telemetry.sdk.language=java" ;;
   ruby) LANG_ATTR="telemetry.sdk.language=ruby" ;;
   node) LANG_ATTR="telemetry.sdk.language=nodejs" ;;
+  browser) LANG_ATTR="telemetry.sdk.language=webjs,owlpane.rum=true" ;;
   *) LANG_ATTR="" ;;
 esac
 BASE_ATTRS="deployment.environment.name=${OWLPANE_ENVIRONMENT},service.version=0.1.1"

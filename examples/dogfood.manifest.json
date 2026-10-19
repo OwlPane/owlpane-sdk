@@ -30,6 +30,12 @@
       "project": "owlpane-sdk-ruby",
       "dir": "apps/ruby",
       "ingestKeyEnv": "OWLPANE_INGEST_KEY_RUBY"
+    },
+    {
+      "id": "browser",
+      "project": "owlpane-sdk-browser",
+      "dir": "apps/browser",
+      "ingestKeyEnv": "OWLPANE_INGEST_KEY_BROWSER"
     }
   ]
 }
