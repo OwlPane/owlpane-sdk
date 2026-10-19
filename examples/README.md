@@ -28,14 +28,20 @@ Set `OWLPANE_DOGFOOD_MODE=rich` to emit multi-span traces (`GET /demo` + `SELECT
 
 ## SaaS dogfood (production ingest)
 
-Copy [`.env.saas.example`](.env.saas.example) to `.env`, set your Scale (or team) login, then:
+Copy [`.env.saas.example`](.env.saas.example) to `.env`. Set **`OWLPANE_INGEST_URL`** from console **Setup → Projects & keys** (same value the API advertises as public ingest), plus **`OWLPANE_ONBOARD_PASSWORD`**.
 
 ```bash
-./scripts/onboard-dogfood.sh --write-env   # or: node scripts/onboard-dogfood.mjs --write-env
-./run-dogfood.sh
+chmod +x scripts/run-saas-dogfood.sh scripts/onboard-dogfood.sh run-dogfood.sh
+./scripts/run-saas-dogfood.sh              # onboard + one rich burst (8 projects incl. demo + PII)
+./scripts/run-saas-dogfood.sh --loop-demo  # continuous load for Home charts
+./pii-canary/run.sh                        # optional PII scrub stream
 ```
 
-Open **Applications**, **Requests**, **Logs**, and **Metrics explorer** on your workspace console (`OWLPANE_CONSOLE_URL`).
+**What this covers:** OTLP from all SDK runtimes, browser RUM, `owlpane-demo-server`, and project **`pii-canary`** (onboarded via `dogfood.manifest.json`).
+
+**What this does not cover:** Kubernetes cluster metrics, infra alert templates, and network/security views — those need the **[owlpane-agent](https://github.com/OwlPane/owlpane-agent)** on your cluster. Follow [kubernetes-e2e.md](https://github.com/OwlPane/owlpane-api/blob/main/docs/ops/kubernetes-e2e.md) on the API repo.
+
+Open **Applications**, **Requests**, **Logs**, and **Metrics explorer** on your workspace console (`OWLPANE_CONSOLE_URL`). Match the **Deploy env** filter to `OWLPANE_ENVIRONMENT` (e.g. `production`).
 
 ## Local full-stack test (`:4318` cell + `:4100` API + `:4200` console)
 
