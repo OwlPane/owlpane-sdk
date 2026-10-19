@@ -1,6 +1,21 @@
-# Installing Owlpane SDKs in customer apps
+# Installing Owlpane SDKs in Customer Applications
 
-Customers install from the **public npm registry** — no GitHub token or `.npmrc` required.
+Customers install Owlpane SDKs from public package registries and authenticate against the Owlpane OTLP ingest gateway using project-scoped `owl_ing_*` keys.
+
+## Standard Environment Variables
+
+All Owlpane SDKs and OpenTelemetry exporters honor the following environment variables:
+
+| Variable | Purpose | Example |
+| --- | --- | --- |
+| `OWLPANE_INGEST_URL` | Owlpane OTLP HTTP gateway URL | `https://ingest.owlpane.com` (or `http://127.0.0.1:4318` locally) |
+| `OWLPANE_INGEST_KEY` | Project ingest key from **Setup** | `owl_ing_...` |
+| `OWLPANE_SERVICE_NAME` | Service name (`service.name`) | `checkout-api` |
+| `OWLPANE_ENVIRONMENT` | Deployment environment (`deployment.environment.name`) | `production` |
+
+## Language SDK Installation
+
+### Node.js & Browser (npm)
 
 ```bash
 npm install @owlpane/node @owlpane/browser
@@ -17,7 +32,27 @@ Pin a version in `package.json`:
 }
 ```
 
-## Publishing (maintainers)
+### Python (PyPI)
+
+```bash
+pip install owlpane
+```
+
+### Go
+
+```bash
+go get github.com/OwlPane/owlpane-sdk/packages/go@v0.1.5
+```
+
+### Java, .NET, Ruby, Rust, PHP, Elixir
+
+See [`examples/`](../../examples/README.md) for runnable per-language quickstarts that emit traces, metrics, and logs to your Owlpane workspace.
+
+## Recommended Starter Dashboards
+
+After deploying an SDK, open **Dashboards → Library** (`/observability/dashboards/library`) or **Dashboards → Built-in templates** (`/observability/dashboards/templates`) to install golden-signal and runtime dashboards.
+
+## Publishing (Maintainers)
 
 Releases are published on every `sdk-v*` tag from [owlpane-sdk](https://github.com/OwlPane/owlpane-sdk) via `.github/workflows/publish-sdk.yml`.
 

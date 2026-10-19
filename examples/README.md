@@ -1,10 +1,10 @@
 # SDK dogfood examples
 
-Minimal **one-shot apps** that install the **published** Owlpane SDK (or plain OpenTelemetry where the thin SDK is env-only) and send a single **Server** span to your ingest gateway. Use them to dogfood the SaaS the same way customers onboard.
+Runnable example applications that install the **published** Owlpane SDKs (or standard OpenTelemetry exporters) and emit traces, metrics, structured logs, and browser RUM telemetry to your Owlpane ingest gateway.
 
 ## Standard onboarding (one project per app)
 
-In the console, create **five projects** (names must match `dogfood.manifest.json`):
+In the console, create **six projects** (names must match `dogfood.manifest.json`):
 
 | Console project | Example app | Package / path |
 |-----------------|-------------|----------------|
@@ -13,32 +13,49 @@ In the console, create **five projects** (names must match `dogfood.manifest.jso
 | `owlpane-sdk-python` | [`apps/python`](apps/python) | `owlpane==0.1.5` (PyPI) |
 | `owlpane-sdk-java` | [`apps/java`](apps/java) | OpenTelemetry **javaagent** + `OTEL_*` env |
 | `owlpane-sdk-ruby` | [`apps/ruby`](apps/ruby) | `opentelemetry-sdk` + OTLP exporter |
+| `owlpane-sdk-browser` | [`apps/browser`](apps/browser) | `@owlpane/browser@0.1.5` (Browser RUM) |
 
-Each project gets its **own ingest key**. `OTEL_SERVICE_NAME` is set to the project slug (same rule as **InstallGuide** in the console).
+Each project gets its **own ingest key** (`owl_ing_*`). `OTEL_SERVICE_NAME` is set to the project slug (same rule as **InstallGuide** in the console).
 
 ```bash
-chmod +x run-dogfood.sh scripts/onboard-dogfood.sh apps/*/run.sh
-# Creates five console projects + keys (Scale org by default), writes examples/.env:
+chmod +x run-dogfood.sh scripts/onboard-dogfood.sh scripts/run-local-demo.sh apps/*/run.sh
+# Creates console projects + keys (Scale org by default), writes examples/.env:
 ./scripts/onboard-dogfood.sh --write-env
 ./run-dogfood.sh
 ```
 
-Uses the same API as **+ New project** (`POST /v1/orgs/:id/projects`). Override with `OWLPANE_ONBOARD_EMAIL`, `OWLPANE_ONBOARD_PASSWORD`, `OWLPANE_ORG_SLUG` (default `scale@owlpane.test` / `owlpane` / `scale`).
+Set `OWLPANE_DOGFOOD_MODE=rich` to emit multi-span traces (`GET /demo` + `SELECT orders`), error spans with recorded exceptions (`POST /checkout`), OTLP metrics (`owlpane.dogfood.requests`, `http.server.request.duration`), and trace-correlated structured logs.
 
-**Auth for Node:** `gh auth refresh -h github.com -s read:packages` (or set `GITHUB_PACKAGES_TOKEN`).
+## Local full-stack test (`:4318` cell + `:4100` API + `:5173` console)
 
-**Console:** Applications → Python / Java / Node.js, deploy env **development**, last hour — or **Traces** with `service.name` `owlpane-sdk-*`.
+Copy [`.env.local.example`](.env.local.example) or let `run-local-demo.sh` onboard automatically against your local stack:
 
-For a quick smoke test only, you may set a single `OWLPANE_INGEST_KEY` (all apps share one project); the runner prints a warning.
+1. **Telemetry cell**: Start the local ingest gateway on `http://127.0.0.1:4318` (and ClickHouse storage).
+2. **Control plane API**: Start `owlpane/api` on `http://127.0.0.1:4100`.
+3. **Web console**: Start `owlpane/console` on `http://127.0.0.1:5173`.
+4. **Emit one-shot rich telemetry across all runtimes**:
+   ```bash
+   ./scripts/run-local-demo.sh --once
+   ```
+5. **Run continuous load for live dashboard charts**:
+   ```bash
+   ./scripts/run-local-demo.sh --loop
+   ```
+
+### Console verification checklist (`http://127.0.0.1:5173`)
+
+- **Applications**: Open **Applications** and select **development** environment to see `owlpane-sdk-node`, `owlpane-sdk-python`, `owlpane-sdk-go`, `owlpane-sdk-java`, and `owlpane-sdk-ruby`.
+- **Traces**: Open **Traces** (`/observability/traces`) and inspect `GET /demo` (with child `SELECT orders` DB span) and `POST /checkout` (with recorded error exception).
+- **Logs**: Open **Logs** (`/observability/logs`) and filter by `owlpane-sdk-node` or `owlpane-demo-server` to verify trace-correlated log records.
+- **Metrics**: Open **Metrics** (`/observability/metrics`) and query `owlpane.dogfood.requests` or `http.server.request.duration`.
+- **Browser / Frontend RUM**: Open **Frontend** to see `owlpane-sdk-browser` `documentLoad` spans, feature flags (`checkout-redesign`), experiments (`exp-cart-2026`), and captured exceptions.
+- **Dashboards Hub**: Open **Dashboards → Library** (`/observability/dashboards/library`) or **Built-in templates** (`/observability/dashboards/templates`) and install a starter dashboard.
 
 ## Other samples
 
 | Path | Purpose |
 |------|---------|
+| [`apps/demo-server/`](apps/demo-server/) | Continuous HTTP + interval load generator emitting traces, metrics, and logs |
 | [`conformance/`](conformance/) | Plain OTel samples + `_receiver` for CI/docs (no real ingest) |
 | [`pii-canary/`](pii-canary/) | PII scrub verification against a live ingest |
 | [`_receiver/`](_receiver/) | Throwaway OTLP receiver used by package conformance tests |
-
-## Monorepo developers
-
-Examples always use **remote** artifacts (`OWLPANE_SDK_SOURCE=published`). To test unreleased SDK changes, work in `packages/*` conformance scripts (`npm test`) or temporarily point an app at a local path in a branch — do not commit local `file:` / `replace` overrides here.
