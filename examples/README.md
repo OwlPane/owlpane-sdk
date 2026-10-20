@@ -21,7 +21,8 @@ Each project gets its **own ingest key** (`owl_ing_*`). `OTEL_SERVICE_NAME` is s
 chmod +x run-dogfood.sh scripts/onboard-dogfood.sh scripts/run-local-demo.sh apps/*/run.sh
 # Creates console projects + keys (Scale org by default), writes examples/.env:
 ./scripts/onboard-dogfood.sh --write-env
-./run-dogfood.sh
+./run-dogfood.sh              # one shot per runtime
+./run-dogfood.sh --loop       # continuous demo-server (traces + metrics + logs every ~3s)
 ```
 
 Set `OWLPANE_DOGFOOD_MODE=rich` to emit multi-span traces (`GET /demo` + `SELECT orders`), error spans with recorded exceptions (`POST /checkout`), OTLP metrics (`owlpane.dogfood.requests`, `http.server.request.duration`), and trace-correlated structured logs.
@@ -63,7 +64,35 @@ Copy [`.env.local.example`](.env.local.example) or let `run-local-demo.sh` onboa
 5. **Run continuous load for live dashboard charts**:
    ```bash
    ./scripts/run-local-demo.sh --loop
+   # or same as: ./run-dogfood.sh --loop
    ```
+
+### Docker Desktop (continuous demo-server container)
+
+With the cell ingest bound on the host (`127.0.0.1:4318` from `stumpcam/deploy`):
+
+```bash
+./scripts/onboard-dogfood.sh --write-env
+chmod +x scripts/run-docker-dogfood.sh
+./scripts/run-docker-dogfood.sh          # build + run; restart policy keeps it up
+docker compose -f docker-compose.dogfood.yml down   # stop
+```
+
+The container sends to `http://host.docker.internal:4318`. Watch **Requests** / **Metrics explorer** for `owlpane-demo-server`.
+
+### Kubernetes agent on Docker Desktop
+
+Cluster metrics and the **Kubernetes** console views need the Helm agent (not the SDK examples alone). Use **Docker Desktop’s** built-in cluster (`docker-desktop` context), not a remote kube context:
+
+```bash
+kubectl config use-context docker-desktop
+cd ../../api
+export OWLPANE_INGEST_KEY=owl_ing_…   # from examples/.env after onboard
+chmod +x scripts/deploy-agent-docker-desktop.sh
+./scripts/deploy-agent-docker-desktop.sh
+```
+
+Console cluster name: **`docker-desktop`**, environment **`production`** (matches the live agent values). See [kubernetes-e2e.md](../../api/docs/ops/kubernetes-e2e.md).
 
 ### Console verification checklist (`http://127.0.0.1:4200`)
 

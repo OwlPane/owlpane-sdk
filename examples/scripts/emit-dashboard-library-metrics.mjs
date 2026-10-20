@@ -71,6 +71,11 @@ const GAUGES = [
   'owlpane_ingest_bytes_total',
   'process_runtime_jvm_memory_usage',
   'process_cpu_time',
+  'otelcol_receiver_accepted_spans',
+  'otelcol_exporter_sent_spans',
+  'otelcol_exporter_send_failed_spans',
+  'http_server_duration_count',
+  'rpc_server_duration_count',
 ]
 
 const attrs = {
