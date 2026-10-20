@@ -37,6 +37,7 @@ const node = process.env.OWLPANE_DOGFOOD_NODE ?? 'node-a'
 
 /** Metric names from owlpane-dashboards library (OpenObserve community dashboards). */
 const GAUGES = [
+  // Redis library dashboard
   'redis_memory_used',
   'redis_memory_peak',
   'redis_commands_processed',
@@ -45,6 +46,7 @@ const GAUGES = [
   'redis_memory_fragmentation_ratio',
   'redis_db_keys',
   'redis_keys_evicted',
+  // Kubernetes / host library dashboards
   'k8s_node_cpu_usage',
   'k8s_node_memory_rss',
   'k8s_node_allocatable_cpu',
@@ -55,6 +57,20 @@ const GAUGES = [
   'k8s.node.memory.working_set',
   'k8s.node.allocatable_cpu',
   'system.network.io',
+  // PostgreSQL library dashboard (OTel contrib names)
+  'postgresql_backends',
+  'postgresql_connection_max',
+  'postgresql_database_count',
+  'postgresql_db_size',
+  'postgresql_blks_hit',
+  'postgresql_blks_read',
+  'postgresql_commits',
+  'postgresql_rollbacks',
+  // Owlpane ingest / agent dogfood
+  'owlpane_ingest_batches_total',
+  'owlpane_ingest_bytes_total',
+  'process_runtime_jvm_memory_usage',
+  'process_cpu_time',
 ]
 
 const attrs = {
