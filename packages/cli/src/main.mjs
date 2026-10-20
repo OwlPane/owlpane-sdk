@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { config, requireApiToken, requireKey } from './config.mjs'
-import { formatPlan, previewPrometheus } from './alerts.mjs'
+import { applyPrometheus, formatPlan, previewPrometheus } from './alerts.mjs'
 import { formatDashboardPlan, previewGrafana } from './dashboards.mjs'
 import { detectCi } from './ci-env.mjs'
 import { hex, sendSpans, span } from './otlp.mjs'
@@ -15,7 +15,8 @@ const HELP = `owlpane — send delivery and security data to Owlpane
   owlpane ci report --pipeline NAME --result success|failure|cancelled [--duration-ms N] [--deploy ENV] [--commit-time ISO] [--rollback]
   owlpane test import junit <file> [--suite NAME]
   owlpane coverage import <lcov|cobertura|json-summary> <file>
-  owlpane alerts import prometheus <file|-> [--json]     preview how Prometheus alerting rules map to Owlpane rules (saves nothing)
+  owlpane alerts import prometheus <file|-> [--json] [--apply] [--include-approximate]
+                              preview (default) or apply Prometheus alerting rules to Owlpane (apply needs alerts:write)
   owlpane dashboards import grafana <file|-> [--json]    preview how Grafana panels map to Owlpane widgets (saves nothing)
 
 Environment
@@ -77,9 +78,12 @@ export async function main(argv, env = process.env, log = console.log, warn = co
   if (cmd === 'alerts' && sub === 'import') {
     const { pos, f } = flags(tail)
     const [format, file] = pos
-    if (format !== 'prometheus' || !file) throw new Error('usage: owlpane alerts import prometheus <file|-> [--json]')
+    if (format !== 'prometheus' || !file) throw new Error('usage: owlpane alerts import prometheus <file|-> [--json] [--apply]')
     requireApiToken(c)
-    const plan = await previewPrometheus(c, readFileSync(file === '-' ? 0 : file, 'utf8'))
+    const text = readFileSync(file === '-' ? 0 : file, 'utf8')
+    const plan = f.apply
+      ? await applyPrometheus(c, text, { includeApproximate: Boolean(f['include-approximate']) })
+      : await previewPrometheus(c, text)
     return log(f.json ? JSON.stringify(plan, null, 2) : formatPlan(plan))
   }
 

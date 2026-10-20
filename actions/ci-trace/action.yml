@@ -1,0 +1,35 @@
+name: Owlpane CI trace
+description: Export GitHub Actions workflow, job, and step spans to Owlpane OTLP ingest (K4 / OS-INT).
+inputs:
+  ingest-key:
+    description: Owlpane ingest key (store as a secret).
+    required: true
+  ingest-url:
+    description: Owlpane ingest base URL (OTLP HTTP).
+    required: true
+  service:
+    description: Service name for spans (defaults to github.repository).
+    required: false
+    default: ""
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+    - name: Emit CI trace scaffold
+      shell: bash
+      env:
+        INGEST_KEY: ${{ inputs.ingest-key }}
+        INGEST_URL: ${{ inputs.ingest-url }}
+        SERVICE: ${{ inputs.service }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_WORKFLOW: ${{ github.workflow }}
+        GITHUB_RUN_ID: ${{ github.run_id }}
+      run: |
+        set -euo pipefail
+        SVC="${SERVICE:-$GITHUB_REPOSITORY}"
+        echo "Owlpane CI trace (K4): service=$SVC workflow=$GITHUB_WORKFLOW run=$GITHUB_RUN_ID"
+        echo "Target: ${INGEST_URL%/}/v1/traces"
+        echo "Full span export ships in a later release; use owlpane/actions/scan for pipeline signals today."
+        echo "See sdk/actions/ci-trace/README.md and api/docs/competitive/opensre.md (OS-INT)."

@@ -33,3 +33,9 @@ export async function previewPrometheus(c, text, fetchImpl = fetch) {
   if (Buffer.byteLength(text) > MAX_RULES_BYTES) throw new Error(`rules text is over ${MAX_RULES_BYTES / 1_000_000} MB; split the file`)
   return postPreview(c, '/v1/alerts/import/prometheus/preview', { rules: text }, fetchImpl)
 }
+
+/** POST apply: creates disabled rules from the preview plan. Requires alerts:write on the token. */
+export async function applyPrometheus(c, text, { includeApproximate = false } = {}, fetchImpl = fetch) {
+  if (Buffer.byteLength(text) > MAX_RULES_BYTES) throw new Error(`rules text is over ${MAX_RULES_BYTES / 1_000_000} MB; split the file`)
+  return postPreview(c, '/v1/alerts/import/prometheus', { rules: text, ...(includeApproximate ? { includeApproximate: true } : {}) }, fetchImpl)
+}

@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
-# Emit one Server span per language using published SDKs / OTel — standard SaaS onboarding.
+# One-shot: emit one Server span per language. --loop: continuous demo-server (traces, metrics, logs).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
+MODE="${1:-}"
+if [ "$MODE" = "--loop" ] || [ "$MODE" = "-l" ]; then
+  shift || true
+  exec "$ROOT/scripts/run-local-demo.sh" --loop
+fi
+if [ -n "$MODE" ] && [ "$MODE" != "--once" ]; then
+  echo "Usage: $0 [--once | --loop]" >&2
+  echo "  --once  default — run node, go, python, java, ruby, browser once" >&2
+  echo "  --loop  continuous owlpane-demo-server (Ctrl+C to stop)" >&2
+  echo "  Detached: ./scripts/run-dogfood-loop-daemon.sh start" >&2
+  exit 1
+fi
 chmod +x "$ROOT/run-dogfood.sh" "$ROOT/_lib/dogfood-env.sh" "$ROOT"/apps/*/run.sh 2>/dev/null || true
 export OWLPANE_SDK_SOURCE=published
 if [ -f "$ROOT/.env" ]; then

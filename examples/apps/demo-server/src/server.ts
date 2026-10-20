@@ -93,6 +93,7 @@ async function emitSyntheticCycle(): Promise<void> {
 }
 
 const port = Number(process.env.DEMO_SERVER_PORT || 4399);
+const bindHost = process.env.DEMO_BIND_HOST || "127.0.0.1";
 const server = http.createServer(async (req, res) => {
   await emitSyntheticCycle();
   res.writeHead(200, { "Content-Type": "application/json" });
@@ -104,9 +105,9 @@ const timer = setInterval(() => {
   void emitSyntheticCycle();
 }, intervalMs);
 
-server.listen(port, "127.0.0.1", () => {
+server.listen(port, bindHost, () => {
   console.log(
-    `Owlpane demo-server listening on http://127.0.0.1:${port} (emitting traces, metrics, and logs every ${intervalMs}ms)`,
+    `Owlpane demo-server listening on http://${bindHost}:${port} (emitting traces, metrics, and logs every ${intervalMs}ms)`,
   );
   void emitSyntheticCycle();
 });
