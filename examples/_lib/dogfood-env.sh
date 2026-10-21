@@ -82,6 +82,9 @@ case "$APP_ID" in
   python) LANG_ATTR="telemetry.sdk.language=python" ;;
   java) LANG_ATTR="telemetry.sdk.language=java" ;;
   ruby) LANG_ATTR="telemetry.sdk.language=ruby" ;;
+  rust) LANG_ATTR="telemetry.sdk.language=rust,process.runtime.name=rust" ;;
+  php) LANG_ATTR="telemetry.sdk.language=php,process.runtime.name=laravel" ;;
+  dotnet) LANG_ATTR="telemetry.sdk.language=dotnet,process.runtime.name=coreclr" ;;
   node) LANG_ATTR="telemetry.sdk.language=nodejs" ;;
   browser) LANG_ATTR="telemetry.sdk.language=webjs,owlpane.rum=true" ;;
   demo-server|pii-canary) LANG_ATTR="telemetry.sdk.language=nodejs" ;;

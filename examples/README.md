@@ -4,7 +4,8 @@ Runnable example applications that install the **published** Owlpane SDKs (or st
 
 ## Standard onboarding (one project per app)
 
-In the console, create **six projects** (names must match `dogfood.manifest.json`):
+In the console, create **one project per app** (names must match `dogfood.manifest.json`).  
+`./scripts/onboard-dogfood.sh --write-env` creates projects and ingest keys via the API (same as **Projects & keys → New project**).
 
 | Console project | Example app | Package / path |
 |-----------------|-------------|----------------|
@@ -13,6 +14,9 @@ In the console, create **six projects** (names must match `dogfood.manifest.json
 | `owlpane-sdk-python` | [`apps/python`](apps/python) | `owlpane==0.1.5` (PyPI) |
 | `owlpane-sdk-java` | [`apps/java`](apps/java) | OpenTelemetry **javaagent** + `OTEL_*` env |
 | `owlpane-sdk-ruby` | [`apps/ruby`](apps/ruby) | `opentelemetry-sdk` + OTLP exporter |
+| `owlpane-sdk-rust` | [`apps/rust`](apps/rust) | OTLP via shared [`_lib/dogfood-rich-emit.mjs`](_lib/dogfood-rich-emit.mjs) |
+| `owlpane-sdk-php` | [`apps/php`](apps/php) | Laravel-style spans + OTLP (shared emitter) |
+| `owlpane-sdk-dotnet` | [`apps/dotnet`](apps/dotnet) | .NET runtime metrics + OTLP (shared emitter) |
 | `owlpane-sdk-browser` | [`apps/browser`](apps/browser) | `@owlpane/browser@0.1.5` (Browser RUM) |
 
 Each project gets its **own ingest key** (`owl_ing_*`). `OTEL_SERVICE_NAME` is set to the project slug (same rule as **InstallGuide** in the console).
@@ -96,7 +100,8 @@ Console cluster name: **`docker-desktop`**, environment **`production`** (matche
 
 ### Console verification checklist (`http://127.0.0.1:4200`)
 
-- **Applications**: Open **Applications** and select **development** environment to see `owlpane-sdk-node`, `owlpane-sdk-python`, `owlpane-sdk-go`, `owlpane-sdk-java`, and `owlpane-sdk-ruby`.
+- **Applications**: Open **Applications** and select **development** to see `owlpane-sdk-*` services.
+- **Runtimes**: Open **Observability → Runtimes → Go / Rust / PHP / .NET** (requires API with extended runtime slugs). After `./run-dogfood.sh`, each board should show RED, errors, and dependencies for that language.
 - **Requests**: Open **Requests** (`/observability/requests`) and inspect `GET /demo` (with child `SELECT orders` DB span) and `POST /checkout` (with recorded error exception). Open a trace and use **full screen** on a span detail (T9).
 - **Logs**: Open **Logs** (`/observability/logs`), filter by `owlpane-sdk-node` or `owlpane-demo-server`, verify trace-correlated log records. Expand **Fields** → **Show more values** on `customer.tier` (exact counts over the range, L3). Group **Lines over time** by `customer.tier` (L17).
 - **Search**: Open **Search**, run a span filter, use **What's different?** with baseline **Just before** (T3).
