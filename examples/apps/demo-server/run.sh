@@ -4,7 +4,7 @@ cd "$(dirname "$0")"
 # shellcheck source=../../_lib/dogfood-env.sh
 source ../../_lib/dogfood-env.sh demo-server
 
-if [ "${OWLPANE_SDK_SOURCE:-}" != "published" ] || [ ! -d node_modules/@owlpane/node ]; then
+if [ "${OWLPANE_SDK_SOURCE:-}" != "published" ] || [ ! -f node_modules/@owlpane/node/package.json ]; then
   npm install --include=dev --no-audit --no-fund
 fi
 npm run start
