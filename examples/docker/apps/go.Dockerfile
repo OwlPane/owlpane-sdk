@@ -1,6 +1,10 @@
 FROM golang:1.23-bookworm
 ARG SDK_VERSION=0.1.5
 ENV GOTOOLCHAIN=auto
+ENV GOPROXY=https://proxy.golang.org,direct
+# Fresh submodule tags may lag sum.golang.org; fetch from GitHub when needed.
+ENV GONOSUMDB=sum.golang.org
+ENV GONOSUMDB=github.com/OwlPane/owlpane-sdk
 RUN apt-get update && apt-get install -y --no-install-recommends tini bash && rm -rf /var/lib/apt/lists/*
 WORKDIR /app/examples
 COPY examples/_lib ./_lib

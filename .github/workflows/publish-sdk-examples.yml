@@ -39,6 +39,9 @@ jobs:
         with:
           ref: >-
             ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
       - id: meta
         run: |
           SDK_VERSION="$(tr -d ' \n\r' < examples/sdk-published.version)"
@@ -46,6 +49,16 @@ jobs:
           VERSION="$(date -u +'%Y.%m.%d')-${GITHUB_RUN_NUMBER}-$(echo "$SHA" | cut -c1-7)"
           echo "sdk_version=$SDK_VERSION" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            echo "Waiting for published SDK ${SDK_VERSION} on npm and PyPI..."
+            for i in $(seq 1 36); do
+              npm view "@owlpane/node@${SDK_VERSION}" version >/dev/null 2>&1 || { sleep 10; continue; }
+              curl -fsSL "https://pypi.org/pypi/owlpane/json" | grep -q "\"${SDK_VERSION}\"" || { sleep 10; continue; }
+              echo "Registries ready after ${i} attempt(s)"
+              exit 0
+            done
+            echo "::warning::Registries may still be propagating; builds might retry manually"
+          fi
 
   build:
     needs: meta
