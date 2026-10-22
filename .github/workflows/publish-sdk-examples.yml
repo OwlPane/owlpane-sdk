@@ -5,7 +5,6 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    tags: ["sdk-v*"]
     paths:
       - "examples/**"
       - "packages/go/**"
@@ -20,6 +19,8 @@ env:
 permissions:
   contents: read
   packages: write
+
+# gitops job pushes seo-infra when GIT_TOKEN is set
 
 jobs:
   meta:
@@ -85,12 +86,10 @@ jobs:
         with:
           context: .
           file: ${{ matrix.dockerfile }}
-          build-args: ${{ matrix.build_arg }}
           push: true
           platforms: linux/amd64
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/sdk-example-${{ matrix.id }}:${{ needs.meta.outputs.version }}
-          build-args: |
-            ${{ matrix.build_arg }}
+          build-args: ${{ matrix.build_arg }}
           cache-from: type=gha,scope=${{ matrix.id }}
           cache-to: type=gha,mode=max,scope=${{ matrix.id }}
 
