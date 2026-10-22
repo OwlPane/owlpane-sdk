@@ -1,17 +1,13 @@
 # One GHCR image per SDK example; single GitOps tag pins all (values-hetzner.yaml imageTag).
+# Rebuild after example-only changes: Actions → Publish SDK example images → Run workflow (main).
 name: Publish SDK example images
 
 on:
   workflow_dispatch:
+  # After sdk-v* publish (registries have the version). Avoid racing Publish SDK on every examples/** merge.
   workflow_run:
     workflows: ["Publish SDK"]
     types: [completed]
-  push:
-    branches: [main]
-    paths:
-      - "examples/**"
-      - "packages/go/**"
-      - ".github/workflows/publish-sdk-examples.yml"
 
 env:
   REGISTRY: ghcr.io

@@ -145,6 +145,10 @@ NOTES_FILE="$(mktemp)"
   echo "| Go | go get github.com/OwlPane/owlpane-sdk/packages/go@v${VERSION} |"
   echo "| Java | com.owlpane:owlpane-java:${VERSION} (Maven, GitHub Packages) |"
   echo "| Ruby | gem install owlpane -v ${VERSION} |"
+  echo ""
+  echo "### All console runtimes (OTLP)"
+  echo ""
+  echo "Rust, PHP, .NET, React Native, and Serverless use **standard OpenTelemetry** exporters with the same \`OWLPANE_INGEST_URL\`, \`OWLPANE_INGEST_KEY\`, and \`OTEL_SERVICE_NAME\` env as the published SDKs. See [platform support](https://github.com/OwlPane/owlpane-sdk/blob/main/docs/ops/platform-support.md) and \`examples/apps/*\`."
 } > "${NOTES_FILE}"
 
 if gh release view "${TAG}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then

@@ -2,6 +2,8 @@
 
 Runnable example applications that install the **published** Owlpane SDKs (or standard OpenTelemetry exporters) and emit traces, metrics, structured logs, and browser RUM telemetry to your Owlpane ingest gateway.
 
+**Platform matrix (6 published SDKs + 5 OTel-native runtimes):** [docs/ops/platform-support.md](../docs/ops/platform-support.md).
+
 ## Standard onboarding (one project per app)
 
 In the console, create **one project per app** (names must match `dogfood.manifest.json`).  
