@@ -11,9 +11,9 @@ In the console, create **one project per app** (names must match `dogfood.manife
 
 | Console project | Example app | Package / path |
 |-----------------|-------------|----------------|
-| `owlpane-sdk-node` | [`apps/node`](apps/node) | `@owlpane/node@0.1.5` (npmjs.com) |
-| `owlpane-sdk-go` | [`apps/go`](apps/go) | `github.com/OwlPane/owlpane-sdk/packages/go@v0.1.5` |
-| `owlpane-sdk-python` | [`apps/python`](apps/python) | `owlpane==0.1.5` (PyPI) |
+| `owlpane-sdk-node` | [`apps/node`](apps/node) | `@owlpane/node@0.1.6` (npmjs.com) |
+| `owlpane-sdk-go` | [`apps/go`](apps/go) | `github.com/OwlPane/owlpane-sdk/packages/go@v0.1.6` |
+| `owlpane-sdk-python` | [`apps/python`](apps/python) | `owlpane==0.1.6` (PyPI) |
 | `owlpane-sdk-java` | [`apps/java`](apps/java) | OpenTelemetry **javaagent** + `OTEL_*` env |
 | `owlpane-sdk-ruby` | [`apps/ruby`](apps/ruby) | `opentelemetry-sdk` + OTLP exporter |
 | `owlpane-sdk-rust` | [`apps/rust`](apps/rust) | OTLP via shared [`_lib/dogfood-rich-emit.mjs`](_lib/dogfood-rich-emit.mjs) |
@@ -21,7 +21,7 @@ In the console, create **one project per app** (names must match `dogfood.manife
 | `owlpane-sdk-dotnet` | [`apps/dotnet`](apps/dotnet) | .NET runtime metrics + OTLP (shared emitter) |
 | `owlpane-sdk-react-native` | [`apps/react-native`](apps/react-native) | Mobile-style spans + `telemetry.sdk.language=react-native` (shared emitter) |
 | `owlpane-sdk-serverless` | [`apps/serverless`](apps/serverless) | Lambda-style spans with `faas.name` (shared emitter) |
-| `owlpane-sdk-browser` | [`apps/browser`](apps/browser) | `@owlpane/browser@0.1.5` (Browser RUM) |
+| `owlpane-sdk-browser` | [`apps/browser`](apps/browser) | `@owlpane/browser@0.1.6` (Browser RUM) |
 
 Each project gets its **own ingest key** (`owl_ing_*`). `OTEL_SERVICE_NAME` is set to the project slug (same rule as **InstallGuide** in the console).
 

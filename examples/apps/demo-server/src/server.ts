@@ -10,7 +10,7 @@ owlpane.start({
   endpoint: process.env.OWLPANE_INGEST_URL ?? process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
   ingestKey: process.env.OWLPANE_INGEST_KEY,
   environment: process.env.OWLPANE_ENVIRONMENT ?? "development",
-  release: "0.1.5",
+  release: "0.1.6",
 });
 
 if (!isEnabled()) {

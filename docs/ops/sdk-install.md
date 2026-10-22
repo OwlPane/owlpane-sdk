@@ -26,8 +26,8 @@ Pin a version in `package.json`:
 ```json
 {
   "dependencies": {
-    "@owlpane/node": "^0.1.5",
-    "@owlpane/browser": "^0.1.5"
+    "@owlpane/node": "^0.1.6",
+    "@owlpane/browser": "^0.1.6"
   }
 }
 ```
@@ -41,7 +41,7 @@ pip install owlpane
 ### Go
 
 ```bash
-go get github.com/OwlPane/owlpane-sdk/packages/go@v0.1.5
+go get github.com/OwlPane/owlpane-sdk/packages/go@v0.1.6
 ```
 
 ### Java (Maven + agent)

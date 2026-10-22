@@ -124,7 +124,7 @@ case "$APP_ID" in
   serverless) LANG_ATTR="telemetry.sdk.language=nodejs,cloud.provider=aws,cloud.platform=aws_lambda" ;;
   *) LANG_ATTR="" ;;
 esac
-BASE_ATTRS="deployment.environment.name=${OWLPANE_ENVIRONMENT},service.version=0.1.5"
+BASE_ATTRS="deployment.environment.name=${OWLPANE_ENVIRONMENT},service.version=0.1.6"
 if [ -n "$LANG_ATTR" ]; then
   export OTEL_RESOURCE_ATTRIBUTES="${BASE_ATTRS},${LANG_ATTR}"
 else
