@@ -3,6 +3,9 @@ name: Publish SDK example images
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Publish SDK"]
+    types: [completed]
   push:
     branches: [main]
     paths:
@@ -25,12 +28,23 @@ permissions:
 jobs:
   meta:
     runs-on: ubuntu-latest
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
     outputs:
       version: ${{ steps.meta.outputs.version }}
+      sdk_version: ${{ steps.meta.outputs.sdk_version }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: >-
+            ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
       - id: meta
         run: |
-          VERSION="$(date -u +'%Y.%m.%d')-${GITHUB_RUN_NUMBER}-$(echo "${GITHUB_SHA}" | cut -c1-7)"
+          SDK_VERSION="$(tr -d ' \n\r' < examples/sdk-published.version)"
+          SHA="$(git rev-parse HEAD)"
+          VERSION="$(date -u +'%Y.%m.%d')-${GITHUB_RUN_NUMBER}-$(echo "$SHA" | cut -c1-7)"
+          echo "sdk_version=$SDK_VERSION" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
   build:
@@ -73,6 +87,9 @@ jobs:
             build_arg: APP_ID=serverless
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: >-
+            ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
       - name: GHCR owner (lowercase)
         run: echo "IMAGE_OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
       - uses: docker/setup-buildx-action@v3
@@ -89,7 +106,9 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/sdk-example-${{ matrix.id }}:${{ needs.meta.outputs.version }}
-          build-args: ${{ matrix.build_arg }}
+          build-args: |
+            SDK_VERSION=${{ needs.meta.outputs.sdk_version }}
+            ${{ matrix.build_arg }}
           cache-from: type=gha,scope=${{ matrix.id }}
           cache-to: type=gha,mode=max,scope=${{ matrix.id }}
 
