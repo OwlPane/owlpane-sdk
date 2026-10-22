@@ -1,5 +1,5 @@
 FROM node:22-alpine
-ARG SDK_VERSION=0.1.5
+ARG SDK_VERSION=0.1.6
 RUN apk add --no-cache tini bash
 WORKDIR /app/examples
 COPY examples/_lib ./_lib

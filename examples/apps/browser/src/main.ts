@@ -21,7 +21,7 @@ const rum = init({
   projectKey,
   serviceName,
   environment,
-  release: "0.1.5",
+  release: "0.1.6",
   env: {
     now: () => Date.now(),
     performance: {

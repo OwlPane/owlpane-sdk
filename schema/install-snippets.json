@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sdkRelease": "0.1.5",
+  "sdkRelease": "0.1.6",
   "publishedLanguages": [
     "node",
     "browser",
@@ -79,7 +79,7 @@
   },
   "go": {
     "module": "github.com/OwlPane/owlpane-sdk/packages/go/owlpane",
-    "goGet": "go get github.com/OwlPane/owlpane-sdk/packages/go@v0.1.5",
+    "goGet": "go get github.com/OwlPane/owlpane-sdk/packages/go@v0.1.6",
     "env": [
       "OTEL_EXPORTER_OTLP_ENDPOINT=https://ingest.example.com",
       "OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf",
@@ -91,7 +91,7 @@
   },
   "python": {
     "package": "owlpane",
-    "pip": "pip install owlpane==0.1.5",
+    "pip": "pip install owlpane==0.1.6",
     "env": [
       "OTEL_EXPORTER_OTLP_ENDPOINT=https://ingest.example.com",
       "OWLPANE_INGEST_KEY=owl_ing_…",
@@ -101,17 +101,17 @@
   },
   "node": {
     "package": "@owlpane/node",
-    "npm": "npm install @owlpane/node@0.1.5",
+    "npm": "npm install @owlpane/node@0.1.6",
     "registry": "https://registry.npmjs.org"
   },
   "browser": {
     "package": "@owlpane/browser",
-    "npm": "npm install @owlpane/browser@0.1.5",
+    "npm": "npm install @owlpane/browser@0.1.6",
     "registry": "https://registry.npmjs.org"
   },
   "java": {
     "package": "com.owlpane:owlpane-java",
-    "maven": "com.owlpane:owlpane-java:0.1.5",
+    "maven": "com.owlpane:owlpane-java:0.1.6",
     "githubPackages": "https://maven.pkg.github.com/OwlPane/owlpane-sdk",
     "env": [
       "OTEL_EXPORTER_OTLP_ENDPOINT=https://ingest.example.com",
@@ -123,7 +123,7 @@
   },
   "ruby": {
     "package": "owlpane",
-    "gem": "gem install owlpane -v 0.1.5",
+    "gem": "gem install owlpane -v 0.1.6",
     "githubPackages": "https://rubygems.pkg.github.com/owlpane",
     "env": [
       "OTEL_EXPORTER_OTLP_ENDPOINT=https://ingest.example.com",

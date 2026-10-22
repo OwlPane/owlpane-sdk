@@ -5,7 +5,7 @@
 **Single pin** (cluster images + `OWLPANE_SDK_SOURCE=published`):
 
 ```text
-examples/sdk-published.version   → 0.1.5
+examples/sdk-published.version   → 0.1.6
 ```
 
 Cut a release:
@@ -15,6 +15,6 @@ git tag sdk-v$(tr -d ' \n' < examples/sdk-published.version)
 git push origin "sdk-v$(tr -d ' \n' < examples/sdk-published.version)"
 ```
 
-After registries have **0.1.5**, run **Publish SDK example images** (or push `examples/**` to `main`).
+After registries have **0.1.6**, run **Publish SDK example images** (or push `examples/**` to `main`).
 
 Local dev against workspace SDKs: `OWLPANE_SDK_SOURCE=local` and existing `replace` / `-e` paths in `requirements.txt` / `go.mod`.
