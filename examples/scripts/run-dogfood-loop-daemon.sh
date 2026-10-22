@@ -24,6 +24,12 @@ find_listener_pid() {
 }
 
 ensure_env() {
+  if [ -f "$ROOT/.env" ]; then
+    set -a
+    # shellcheck disable=SC1091
+    source "$ROOT/.env"
+    set +a
+  fi
   export OWLPANE_API_URL="${OWLPANE_API_URL:-http://127.0.0.1:4100}"
   export OWLPANE_INGEST_URL="${OWLPANE_INGEST_URL:-http://127.0.0.1:4318}"
   export OWLPANE_ENVIRONMENT="${OWLPANE_ENVIRONMENT:-development}"
