@@ -1,4 +1,5 @@
 .env
+.dogfood-laptop-off
 apps/node/node_modules
 apps/node/.npmrc
 apps/python/.venv
