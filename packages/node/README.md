@@ -24,6 +24,7 @@ No code change:
 node --import @owlpane/node/register dist/main.js
 ```
 
+- **Runtime boards** — exports Node event-loop, V8, and process metrics to `/v1/metrics` for **Observability → Runtimes → Node.js**. See [Runtime telemetry](../../docs/runtime-telemetry.md).
 - **Never blocks your app.** Export is batched and fails quietly; the SDK does nothing when no endpoint is set.
 - **Your key is a write-only credential.** It can send data for one project and cannot read anything.
 - **Privacy.** Query strings, cookies and authorization headers are removed at the gateway as well as here.

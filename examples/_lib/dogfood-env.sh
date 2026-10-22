@@ -82,9 +82,14 @@ case "$APP_ID" in
   python) LANG_ATTR="telemetry.sdk.language=python" ;;
   java) LANG_ATTR="telemetry.sdk.language=java" ;;
   ruby) LANG_ATTR="telemetry.sdk.language=ruby" ;;
+  rust) LANG_ATTR="telemetry.sdk.language=rust,process.runtime.name=rust" ;;
+  php) LANG_ATTR="telemetry.sdk.language=php,process.runtime.name=laravel" ;;
+  dotnet) LANG_ATTR="telemetry.sdk.language=dotnet,process.runtime.name=coreclr" ;;
   node) LANG_ATTR="telemetry.sdk.language=nodejs" ;;
   browser) LANG_ATTR="telemetry.sdk.language=webjs,owlpane.rum=true" ;;
   demo-server|pii-canary) LANG_ATTR="telemetry.sdk.language=nodejs" ;;
+  react-native) LANG_ATTR="telemetry.sdk.language=react-native,process.runtime.name=react-native,os.type=ios,os.name=iOS" ;;
+  serverless) LANG_ATTR="telemetry.sdk.language=nodejs,cloud.provider=aws,cloud.platform=aws_lambda" ;;
   *) LANG_ATTR="" ;;
 esac
 BASE_ATTRS="deployment.environment.name=${OWLPANE_ENVIRONMENT},service.version=0.1.1"

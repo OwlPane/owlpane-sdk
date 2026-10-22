@@ -52,6 +52,8 @@ See [`examples/`](../../examples/README.md) for runnable per-language quickstart
 
 After deploying an SDK, open **Dashboards → Library** (`/observability/dashboards/library`) or **Dashboards → Built-in templates** (`/observability/dashboards/templates`) to install golden-signal and runtime dashboards.
 
+For **Observability → Runtimes** and **Serverless**, see the full [Runtime telemetry implementation guide](../runtime-telemetry.md) (resource attributes, spans, OTLP metrics, K8s agent, Collector, troubleshooting). Kubernetes: [agent runtime telemetry](../../agent/docs/runtime-telemetry.md).
+
 ## Publishing (Maintainers)
 
 Releases are published on every `sdk-v*` tag from [owlpane-sdk](https://github.com/OwlPane/owlpane-sdk) via `.github/workflows/publish-sdk.yml`.

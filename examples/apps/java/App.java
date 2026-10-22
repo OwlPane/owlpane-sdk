@@ -35,6 +35,18 @@ public class App {
     }
 
     if (rich) {
+      Span worker =
+          tracer
+              .spanBuilder("kafka.consume order-events")
+              .setSpanKind(SpanKind.SERVER)
+              .setAttribute("http.request.method", "POST")
+              .setAttribute("http.route", "/internal/kafka")
+              .setAttribute("messaging.system", "kafka")
+              .setAttribute("messaging.destination.name", "order-events")
+              .startSpan();
+      Thread.sleep(10);
+      worker.end();
+
       Span errSpan =
           tracer
               .spanBuilder("POST /checkout")
@@ -49,5 +61,14 @@ public class App {
       errSpan.end();
     }
     System.out.println("span emitted");
+    String metricsExporter = System.getenv("OTEL_METRICS_EXPORTER");
+    if (metricsExporter != null && !metricsExporter.isBlank() && !"none".equalsIgnoreCase(metricsExporter)) {
+      int sec = 8;
+      try {
+        sec = Integer.parseInt(System.getenv().getOrDefault("OWLPANE_JAVA_DOGFOOD_SLEEP_SEC", "8"));
+      } catch (NumberFormatException ignored) {
+      }
+      Thread.sleep(Math.max(1, sec) * 1000L);
+    }
   }
 }

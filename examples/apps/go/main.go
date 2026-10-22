@@ -51,6 +51,18 @@ func main() {
 	span.End()
 
 	if rich {
+		_, workerSpan := tr.Start(ctx, "POST /internal/worker",
+			trace.WithSpanKind(trace.SpanKindServer),
+			trace.WithAttributes(
+				attribute.String("http.request.method", "POST"),
+				attribute.String("http.route", "/internal/worker"),
+				attribute.String("messaging.system", "sqs"),
+				attribute.String("messaging.destination.name", "dogfood-jobs"),
+			),
+		)
+		time.Sleep(8 * time.Millisecond)
+		workerSpan.End()
+
 		_, errSpan := tr.Start(ctx, "POST /checkout",
 			trace.WithSpanKind(trace.SpanKindServer),
 			trace.WithAttributes(
@@ -63,6 +75,12 @@ func main() {
 		errSpan.RecordError(checkoutErr)
 		errSpan.SetStatus(codes.Error, checkoutErr.Error())
 		errSpan.End()
+	}
+
+	if sec := getenv("OWLPANE_DOGFOOD_METRICS_SLEEP_SEC", "6"); sec != "0" {
+		if d, err := time.ParseDuration(sec + "s"); err == nil && d > 0 {
+			time.Sleep(d)
+		}
 	}
 
 	if err := shutdown(ctx); err != nil {

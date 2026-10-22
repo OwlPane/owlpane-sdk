@@ -12,7 +12,9 @@ export OTEL_SERVICE_NAME=my-api
 ```python
 from owlpane import shutdown, start
 
-start()
+start()  # traces + process metrics (disable metrics: OWLPANE_RUNTIME_METRICS=0)
 # … application …
 shutdown()
 ```
+
+Runtime boards: [Runtime telemetry](../../docs/runtime-telemetry.md).

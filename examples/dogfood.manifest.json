@@ -32,10 +32,40 @@
       "ingestKeyEnv": "OWLPANE_INGEST_KEY_RUBY"
     },
     {
+      "id": "rust",
+      "project": "owlpane-sdk-rust",
+      "dir": "apps/rust",
+      "ingestKeyEnv": "OWLPANE_INGEST_KEY_RUST"
+    },
+    {
+      "id": "php",
+      "project": "owlpane-sdk-php",
+      "dir": "apps/php",
+      "ingestKeyEnv": "OWLPANE_INGEST_KEY_PHP"
+    },
+    {
+      "id": "dotnet",
+      "project": "owlpane-sdk-dotnet",
+      "dir": "apps/dotnet",
+      "ingestKeyEnv": "OWLPANE_INGEST_KEY_DOTNET"
+    },
+    {
       "id": "browser",
       "project": "owlpane-sdk-browser",
       "dir": "apps/browser",
       "ingestKeyEnv": "OWLPANE_INGEST_KEY_BROWSER"
+    },
+    {
+      "id": "react-native",
+      "project": "owlpane-sdk-react-native",
+      "dir": "apps/react-native",
+      "ingestKeyEnv": "OWLPANE_INGEST_KEY_REACT_NATIVE"
+    },
+    {
+      "id": "serverless",
+      "project": "owlpane-sdk-serverless",
+      "dir": "apps/serverless",
+      "ingestKeyEnv": "OWLPANE_INGEST_KEY_SERVERLESS"
     },
     {
       "id": "demo-server",

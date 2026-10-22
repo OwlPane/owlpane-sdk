@@ -88,14 +88,26 @@ func Start(ctx context.Context, cfg *Config) (ShutdownFunc, error) {
 	))
 	enabled = true
 	traceUP = cfg.TraceUserProfile
+	if err := startMetrics(ctx, cfg, res); err != nil {
+		_ = tp.Shutdown(ctx)
+		tp = nil
+		enabled = false
+		return nil, err
+	}
 	return Shutdown, nil
 }
 
 func Shutdown(ctx context.Context) error {
-	if tp == nil {
-		return nil
+	var err error
+	if mp != nil {
+		err = shutdownMetrics(ctx)
 	}
-	err := tp.Shutdown(ctx)
+	if tp == nil {
+		return err
+	}
+	if serr := tp.Shutdown(ctx); err == nil {
+		err = serr
+	}
 	tp = nil
 	enabled = false
 	return err

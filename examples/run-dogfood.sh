@@ -9,9 +9,10 @@ if [ "$MODE" = "--loop" ] || [ "$MODE" = "-l" ]; then
 fi
 if [ -n "$MODE" ] && [ "$MODE" != "--once" ]; then
   echo "Usage: $0 [--once | --loop]" >&2
-  echo "  --once  default — run node, go, python, java, ruby, browser once" >&2
+  echo "  --once  default — run all SDK example apps once (incl. rust, php, dotnet)" >&2
   echo "  --loop  continuous owlpane-demo-server (Ctrl+C to stop)" >&2
   echo "  Detached: ./scripts/run-dogfood-loop-daemon.sh start" >&2
+  echo "  Foreground loop: ./scripts/run-dogfood-foreground.sh (demo + ticker, Ctrl+C)" >&2
   exit 1
 fi
 chmod +x "$ROOT/run-dogfood.sh" "$ROOT/_lib/dogfood-env.sh" "$ROOT"/apps/*/run.sh 2>/dev/null || true
@@ -35,9 +36,9 @@ echo "Create one console project per app (see dogfood.manifest.json)."
 echo ""
 
 run_app() {
-  local id="$1"
-  echo "=== ${id} ==="
-  (cd "$ROOT/apps/$id" && chmod +x run.sh && ./run.sh)
+  local app_id="$1"
+  echo "=== ${app_id} ==="
+  (cd "$ROOT/apps/$app_id" && chmod +x run.sh && ./run.sh)
 }
 
 run_app node
@@ -45,6 +46,11 @@ run_app go
 run_app python
 run_app java
 run_app ruby
+run_app rust
+run_app php
+run_app dotnet
+run_app react-native
+run_app serverless
 run_app browser
 echo ""
 echo "Done. Console → Applications (per runtime) or Traces · filter by service owlpane-sdk-* · env ${OWLPANE_ENVIRONMENT:-development}."
