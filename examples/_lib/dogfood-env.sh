@@ -24,19 +24,34 @@ if [ ! -f "$MANIFEST" ]; then
   return 1 2>/dev/null || exit 1
 fi
 
-read_manifest() {
-  node -e "
+manifest_app_field() {
+  local app_id="$1" field="$2"
+  if command -v node >/dev/null 2>&1; then
+    node -e "
 const fs = require('fs');
 const apps = JSON.parse(fs.readFileSync('${MANIFEST}', 'utf8')).apps;
-const app = apps.find((a) => a.id === '${APP_ID}');
-if (!app) { console.error('Unknown app id: ${APP_ID}'); process.exit(1); }
-process.stdout.write(JSON.stringify(app));
+const app = apps.find((a) => a.id === '${app_id}');
+if (!app) { process.exit(1); }
+process.stdout.write(String(app['${field}'] ?? ''));
 "
+    return $?
+  fi
+  if command -v python3 >/dev/null 2>&1; then
+    python3 - "$app_id" "$field" "$MANIFEST" <<'PY'
+import json, sys
+app_id, field, path = sys.argv[1], sys.argv[2], sys.argv[3]
+apps = json.load(open(path, encoding="utf-8"))["apps"]
+app = next(a for a in apps if a["id"] == app_id)
+print(app[field])
+PY
+    return $?
+  fi
+  echo "dogfood-env.sh: need node or python3 to read ${MANIFEST}" >&2
+  return 1
 }
 
-APP_JSON="$(read_manifest)"
-PROJECT="$(node -e "process.stdout.write(JSON.parse(process.argv[1]).project)" "$APP_JSON")"
-KEY_ENV="$(node -e "process.stdout.write(JSON.parse(process.argv[1]).ingestKeyEnv)" "$APP_JSON")"
+PROJECT="$(manifest_app_field "$APP_ID" project)" || PROJECT=""
+KEY_ENV="$(manifest_app_field "$APP_ID" ingestKeyEnv)" || KEY_ENV=""
 
 ENDPOINT="${OWLPANE_INGEST_URL:-${OWLPANE_ENDPOINT:-}}"
 if [ -z "$ENDPOINT" ]; then
@@ -44,7 +59,11 @@ if [ -z "$ENDPOINT" ]; then
   return 1 2>/dev/null || exit 1
 fi
 
-KEY="${!KEY_ENV:-}"
+# Kubernetes injects OWLPANE_INGEST_KEY directly; laptop uses OWLPANE_INGEST_KEY_* from .env.
+KEY="${OWLPANE_INGEST_KEY:-}"
+if [ -z "$KEY" ] && [ -n "$KEY_ENV" ]; then
+  KEY="${!KEY_ENV:-}"
+fi
 if [ -z "$KEY" ]; then
   echo "Missing ${KEY_ENV}. Run: ./scripts/onboard-dogfood.sh --write-env" >&2
   return 1 2>/dev/null || exit 1
