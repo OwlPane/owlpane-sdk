@@ -122,19 +122,30 @@ docker compose -f docker-compose.dogfood.yml down   # stop
 
 The container sends to `http://host.docker.internal:4318`. Watch **Requests** / **Metrics explorer** for `owlpane-demo-server`.
 
-### Kubernetes agent on Docker Desktop
+### Kubernetes agent (cluster metrics)
 
-Cluster metrics and the **Kubernetes** console views need the Helm agent (not the SDK examples alone). Use **Docker Desktop’s** built-in cluster (`docker-desktop` context), not a remote kube context:
+Cluster metrics and **Infrastructure → Kubernetes** need the Helm agent (SDK examples alone are not enough).
+
+**Hetzner k3s (production dogfood):** reuse the **Default** ingest key from console project **Kubernetes: k3s-cluster** (renaming the project does not rotate keys):
+
+```bash
+export OWLPANE_INGEST_KEY=owl_ing_…   # Default key from Settings → Projects & keys
+cd ../../../SEO2LS/seo-infra
+./scripts/deploy-agent-k3s-hetzner.sh
+```
+
+Defaults: `cluster.name=k3s-cluster`, in-cluster ingest, chart **0.3.4**.
+
+**Local Docker Desktop:**
 
 ```bash
 kubectl config use-context docker-desktop
 cd ../../api
-export OWLPANE_INGEST_KEY=owl_ing_…   # from examples/.env after onboard
-chmod +x scripts/deploy-agent-docker-desktop.sh
+export OWLPANE_INGEST_KEY=owl_ing_…
 ./scripts/deploy-agent-docker-desktop.sh
 ```
 
-Console cluster name: **`docker-desktop`**, environment **`production`** (matches the live agent values). See [kubernetes-e2e.md](../../api/docs/ops/kubernetes-e2e.md).
+See [kubernetes-e2e.md](../../api/docs/ops/kubernetes-e2e.md).
 
 ### Console verification checklist (`http://127.0.0.1:4200`)
 
