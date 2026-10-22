@@ -11,7 +11,8 @@ COPY examples/docker/app-k8s-entrypoint.sh /docker/
 RUN chmod +x /docker/app-k8s-entrypoint.sh apps/browser/run.sh \
   && cd apps/browser \
   && npm pkg delete dependencies.@owlpane/browser 2>/dev/null || true \
-  && npm pkg set "dependencies.@owlpane/browser=@owlpane/browser@${SDK_VERSION}" \
+  && rm -f package-lock.json \
+  && npm pkg set "dependencies.@owlpane/browser=${SDK_VERSION}" \
   && npm install --no-audit --no-fund \
   && npm install tsx@^4.20.6 typescript@^5.9.3 --no-audit --no-fund
 ENV OWLPANE_DOGFOOD_APP_ID=browser OWLPANE_EXAMPLE_MODE=loop OWLPANE_SDK_SOURCE=published
