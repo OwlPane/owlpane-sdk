@@ -80,6 +80,23 @@ await tracer.startActiveSpan(
 
 if (richMode) {
   await tracer.startActiveSpan(
+    "bullmq.process email.send",
+    {
+      kind: SpanKind.SERVER,
+      attributes: {
+        "http.request.method": "POST",
+        "http.route": "/internal/worker",
+        "messaging.system": "bullmq",
+        "messaging.destination.name": "email",
+      },
+    },
+    async (jobSpan) => {
+      await new Promise((r) => setTimeout(r, 12));
+      jobSpan.end();
+    },
+  );
+
+  await tracer.startActiveSpan(
     "POST /checkout",
     {
       kind: SpanKind.SERVER,

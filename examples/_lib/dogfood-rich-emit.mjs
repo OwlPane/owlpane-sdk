@@ -38,8 +38,18 @@ if (appId === "php") {
   demoAttrs["laravel.route"] = "api/products.index";
   demoAttrs["php.framework"] = "laravel";
 }
+if (appId === "serverless") {
+  demoAttrs["faas.name"] = "owlpane-dogfood-fn";
+  demoAttrs["faas.trigger"] = "http";
+  demoAttrs["cloud.provider"] = "aws";
+}
+if (appId === "react-native") {
+  demoAttrs["screen.name"] = "Home";
+}
 
-await tracer.startActiveSpan("GET /demo", { kind: SpanKind.SERVER, attributes: demoAttrs }, async (span) => {
+const rootName = appId === "react-native" ? "screen.load Home" : appId === "serverless" ? "owlpane-dogfood-fn" : "GET /demo";
+const rootKind = appId === "react-native" ? SpanKind.INTERNAL : SpanKind.SERVER;
+await tracer.startActiveSpan(rootName, { kind: rootKind, attributes: demoAttrs }, async (span) => {
   await new Promise((r) => setTimeout(r, 35));
   if (rich) {
     await tracer.startActiveSpan(
@@ -70,6 +80,25 @@ await tracer.startActiveSpan("GET /demo", { kind: SpanKind.SERVER, attributes: d
   span.end();
 });
 
+if (rich && appId !== "php") {
+  await tracer.startActiveSpan(
+    "worker.process dogfood",
+    {
+      kind: SpanKind.SERVER,
+      attributes: {
+        "http.request.method": "POST",
+        "http.route": "/internal/worker",
+        "messaging.system": appId === "dotnet" ? "hangfire" : appId === "rust" ? "redis" : "sqs",
+        "messaging.destination.name": "dogfood-jobs",
+      },
+    },
+    async (job) => {
+      await new Promise((r) => setTimeout(r, 10));
+      job.end();
+    },
+  );
+}
+
 if (rich) {
   await tracer.startActiveSpan(
     "POST /checkout",
@@ -85,23 +114,52 @@ if (rich) {
     },
   );
 
-  const gauges = ["process.cpu.utilization"];
-  if (appId === "go") gauges.push("process.runtime.go.goroutines", "go.memory.heap.alloc");
-  if (appId === "rust") gauges.push("process.runtime.rust.threads");
-  if (appId === "php") gauges.push("process.runtime.php.memory.usage");
-  if (appId === "dotnet") gauges.push("process.runtime.dotnet.thread.count");
+  const gaugesByApp = {
+    go: [
+      "process.cpu.utilization",
+      "process.memory.usage",
+      "process.runtime.go.goroutines",
+      "process.runtime.go.gc.count",
+      "go.memory.heap.alloc",
+      "go.memory.heap.sys",
+    ],
+    rust: [
+      "process.cpu.utilization",
+      "process.memory.usage",
+      "process.runtime.rust.threads",
+      "process.runtime.rust.memory.usage",
+    ],
+    php: [
+      "process.cpu.utilization",
+      "process.memory.usage",
+      "process.runtime.php.memory.usage",
+      "process.runtime.php.memory.limit",
+    ],
+    dotnet: [
+      "process.cpu.utilization",
+      "process.memory.usage",
+      "process.runtime.dotnet.thread.count",
+      "process.runtime.dotnet.gc.heap.size",
+      "process.runtime.dotnet.gc.collections.count",
+    ],
+    "react-native": ["process.cpu.utilization", "process.memory.usage"],
+    serverless: ["process.cpu.utilization", "process.memory.usage"],
+  };
+  const gauges = gaugesByApp[appId] ?? ["process.cpu.utilization", "process.memory.usage"];
   for (const name of gauges) {
     const g = meter.createObservableGauge(name);
     g.addCallback((obs) => {
       const v =
         name.includes("goroutines") ? 48 + Math.floor(Math.random() * 20)
         : name.includes("thread") ? 12 + Math.floor(Math.random() * 6)
+        : name.includes("gc.count") || name.includes("collections") ? 40 + Math.floor(Math.random() * 30)
         : name.includes("memory") || name.includes("heap") ? 50_000_000 + Math.random() * 10_000_000
+        : name.includes("limit") ? 128_000_000
         : 0.18 + Math.random() * 0.12;
       obs.observe(v);
     });
   }
-  await new Promise((r) => setTimeout(r, 3500));
+  await new Promise((r) => setTimeout(r, 6500));
 }
 
 await shutdown();

@@ -17,6 +17,8 @@ In the console, create **one project per app** (names must match `dogfood.manife
 | `owlpane-sdk-rust` | [`apps/rust`](apps/rust) | OTLP via shared [`_lib/dogfood-rich-emit.mjs`](_lib/dogfood-rich-emit.mjs) |
 | `owlpane-sdk-php` | [`apps/php`](apps/php) | Laravel-style spans + OTLP (shared emitter) |
 | `owlpane-sdk-dotnet` | [`apps/dotnet`](apps/dotnet) | .NET runtime metrics + OTLP (shared emitter) |
+| `owlpane-sdk-react-native` | [`apps/react-native`](apps/react-native) | Mobile-style spans + `telemetry.sdk.language=react-native` (shared emitter) |
+| `owlpane-sdk-serverless` | [`apps/serverless`](apps/serverless) | Lambda-style spans with `faas.name` (shared emitter) |
 | `owlpane-sdk-browser` | [`apps/browser`](apps/browser) | `@owlpane/browser@0.1.5` (Browser RUM) |
 
 Each project gets its **own ingest key** (`owl_ing_*`). `OTEL_SERVICE_NAME` is set to the project slug (same rule as **InstallGuide** in the console).
@@ -25,8 +27,8 @@ Each project gets its **own ingest key** (`owl_ing_*`). `OTEL_SERVICE_NAME` is s
 chmod +x run-dogfood.sh scripts/onboard-dogfood.sh scripts/run-local-demo.sh apps/*/run.sh
 # Creates console projects + keys (Scale org by default), writes examples/.env:
 ./scripts/onboard-dogfood.sh --write-env
-./run-dogfood.sh              # one shot per runtime
-./run-dogfood.sh --loop       # continuous demo-server (traces + metrics + logs every ~3s)
+./run-dogfood.sh              # one shot per runtime (incl. react-native + serverless)
+./run-dogfood.sh --loop       # continuous Node demo-server + runtime ticker (see below)
 ```
 
 Set `OWLPANE_DOGFOOD_MODE=rich` to emit multi-span traces (`GET /demo` + `SELECT orders`), error spans with recorded exceptions (`POST /checkout`), OTLP metrics (`owlpane.dogfood.requests`, `http.server.request.duration`), and trace-correlated structured logs.
@@ -70,6 +72,40 @@ Copy [`.env.local.example`](.env.local.example) or let `run-local-demo.sh` onboa
    ./scripts/run-local-demo.sh --loop
    # or same as: ./run-dogfood.sh --loop
    ```
+6. **Detached loop (recommended for console dogfood)**:
+   ```bash
+   chmod +x scripts/run-dogfood-loop-daemon.sh
+   ./scripts/run-dogfood-loop-daemon.sh restart
+   ./scripts/run-dogfood-loop-daemon.sh status
+   ```
+   Logs: `/tmp/owlpane-demo-server.log`, `/tmp/owlpane-runtime-ticker.log`.
+
+### Local dogfood loop (all runtimes)
+
+Console **Observability → Runtimes** filters on `telemetry.sdk.language` (and **Serverless** on `faas.name`) in the selected **Deploy env** and time range (e.g. **development**, **LAST 6H**). Full implementation guide: [`../docs/runtime-telemetry.md`](../docs/runtime-telemetry.md).
+
+| Mode | What runs | Which runtime tabs get data |
+|------|-----------|------------------------------|
+| `./run-dogfood.sh --once` | One rich burst per app | All runtimes **once**; data drops off after your time window unless you run again |
+| `./run-dogfood.sh --loop` / `run-local-demo.sh --loop` | **demo-server** (~3s) + **runtime ticker** (~45s) | **Node.js** continuously; Go/Java/Python/Ruby/Rust/PHP/.NET/React Native/Serverless refreshed on the ticker interval |
+| `run-dogfood-loop-daemon.sh` | Same as `--loop`, background | Same; use `restart` after pulling example changes |
+
+**Runtime ticker** apps: `go`, `java`, `python`, `ruby`, `rust`, `php`, `dotnet`, `react-native`, `serverless`.  
+**Not in the ticker:** `browser` (run manually or use Frontend RUM), `node` (use demo-server or `./apps/node/run.sh`).
+
+**Prerequisites on macOS:**
+
+- **Java:** `/usr/bin/java` is often a stub. Install `brew install openjdk@21`; `apps/java/run.sh` picks up Homebrew OpenJDK automatically.
+- **Ruby:** System Ruby 2.6 is too old for the Gemfile (Bundler 4). Use Homebrew Ruby (`brew install ruby`); `apps/ruby/run.sh` prepends `/opt/homebrew/opt/ruby/bin` to `PATH`.
+- **.NET:** SDK required for the native app; the shared Node emitter in `apps/dotnet/run.sh` works without `dotnet` on PATH.
+
+**If runtime pages stay empty:**
+
+1. Match console env to `OWLPANE_ENVIRONMENT` in `examples/.env` (usually `development`).
+2. Confirm ingest: `OWLPANE_INGEST_URL=http://127.0.0.1:4318` and API on `:4100`.
+3. Run `./scripts/onboard-dogfood.sh --write-env` then `./run-dogfood.sh --once` or `run-dogfood-loop-daemon.sh restart`.
+4. Check API logs for `Observability store unreachable` (ClickHouse/timeouts).
+5. **Serverless** tab needs spans with `SpanAttributes['faas.name']`; the empty tab is plain black (no “No telemetry” copy) until data arrives.
 
 ### Docker Desktop (continuous demo-server container)
 
@@ -101,7 +137,7 @@ Console cluster name: **`docker-desktop`**, environment **`production`** (matche
 ### Console verification checklist (`http://127.0.0.1:4200`)
 
 - **Applications**: Open **Applications** and select **development** to see `owlpane-sdk-*` services.
-- **Runtimes**: Open **Observability → Runtimes → Go / Rust / PHP / .NET** (requires API with extended runtime slugs). After `./run-dogfood.sh`, each board should show RED, errors, and dependencies for that language.
+- **Runtimes**: **Observability → Runtimes** (Node, Java, Python, Ruby, Go, Rust, PHP, .NET, React Native) and **Serverless**. With `run-dogfood-loop-daemon.sh` running, refresh after one ticker cycle (~45s). Each board should show RED, errors, dependencies, **runtime metric panels**, **vitals** (arrangeable with other charts), and **HTTP vs background** when rich dogfood emits `messaging.system` on server spans. Go uses native runtime metrics (`OWLPANE_RUNTIME_METRICS=1`); Rust/PHP/.NET use `dogfood-rich-emit.mjs` with `OWLPANE_DOGFOOD_MODE=rich` (default in their `run.sh`).
 - **Requests**: Open **Requests** (`/observability/requests`) and inspect `GET /demo` (with child `SELECT orders` DB span) and `POST /checkout` (with recorded error exception). Open a trace and use **full screen** on a span detail (T9).
 - **Logs**: Open **Logs** (`/observability/logs`), filter by `owlpane-sdk-node` or `owlpane-demo-server`, verify trace-correlated log records. Expand **Fields** → **Show more values** on `customer.tier` (exact counts over the range, L3). Group **Lines over time** by `customer.tier` (L17).
 - **Search**: Open **Search**, run a span filter, use **What's different?** with baseline **Just before** (T3).

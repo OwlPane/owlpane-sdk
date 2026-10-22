@@ -19,8 +19,11 @@ if [ ! -f "$ROOT/.env" ] || ! grep -q '^OWLPANE_INGEST_KEY_NODE=owl_ing_' "$ROOT
 fi
 
 if [ "$MODE" = "--loop" ]; then
-  echo "Starting continuous demo-server against ${OWLPANE_INGEST_URL}…"
-  chmod +x "$ROOT/apps/demo-server/run.sh"
+  echo "Starting continuous demo-server (Node.js) + runtime ticker every ${DOGFOOD_RUNTIME_TICK_SEC:-45}s…"
+  chmod +x "$ROOT/apps/demo-server/run.sh" "$ROOT/scripts/run-dogfood-runtime-ticker.sh" "$ROOT"/apps/*/run.sh 2>/dev/null || true
+  "$ROOT/scripts/run-dogfood-runtime-ticker.sh" &
+  TICKER_PID=$!
+  trap 'kill "$TICKER_PID" 2>/dev/null || true' EXIT INT TERM
   exec "$ROOT/apps/demo-server/run.sh"
 else
   echo "Running one-shot rich telemetry pass across all example apps…"

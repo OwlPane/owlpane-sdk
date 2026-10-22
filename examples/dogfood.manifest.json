@@ -56,6 +56,18 @@
       "ingestKeyEnv": "OWLPANE_INGEST_KEY_BROWSER"
     },
     {
+      "id": "react-native",
+      "project": "owlpane-sdk-react-native",
+      "dir": "apps/react-native",
+      "ingestKeyEnv": "OWLPANE_INGEST_KEY_REACT_NATIVE"
+    },
+    {
+      "id": "serverless",
+      "project": "owlpane-sdk-serverless",
+      "dir": "apps/serverless",
+      "ingestKeyEnv": "OWLPANE_INGEST_KEY_SERVERLESS"
+    },
+    {
       "id": "demo-server",
       "project": "owlpane-demo-server",
       "dir": "apps/demo-server",

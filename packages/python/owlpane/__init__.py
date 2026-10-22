@@ -12,6 +12,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.sdk.trace.sampling import ParentBasedTraceIdRatio
 
 from owlpane._generated_config import Config, resolve_config_from_env
+from owlpane._metrics import shutdown_runtime_metrics, start_runtime_metrics
 
 _provider: Optional[TracerProvider] = None
 _enabled = False
@@ -47,12 +48,14 @@ def start(cfg: Optional[Config] = None) -> Optional[Callable[[], None]]:
     _provider = TracerProvider(resource=resource, sampler=sampler)
     _provider.add_span_processor(BatchSpanProcessor(exporter))
     trace.set_tracer_provider(_provider)
+    start_runtime_metrics(cfg, resource)
     _enabled = True
     return shutdown
 
 
 def shutdown() -> None:
     global _provider, _enabled
+    shutdown_runtime_metrics()
     if _provider is not None:
         _provider.shutdown()
         _provider = None

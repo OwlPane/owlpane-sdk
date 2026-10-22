@@ -28,6 +28,18 @@ with tracer.start_as_current_span(
 
 if rich_mode:
     with tracer.start_as_current_span(
+        "celery.process orders.ship",
+        kind=trace.SpanKind.SERVER,
+        attributes={
+            "http.request.method": "POST",
+            "http.route": "/internal/celery",
+            "messaging.system": "redis",
+            "messaging.destination.name": "celery",
+        },
+    ):
+        time.sleep(0.01)
+
+    with tracer.start_as_current_span(
         "POST /checkout",
         kind=trace.SpanKind.SERVER,
         attributes={"http.request.method": "POST", "http.route": "/checkout", "http.response.status_code": 500},
@@ -35,6 +47,10 @@ if rich_mode:
         err = RuntimeError("Inventory reservation failed for SKU-42")
         err_span.record_exception(err)
         err_span.set_status(Status(StatusCode.ERROR, str(err)))
+
+metrics_sleep = int(os.environ.get("OWLPANE_DOGFOOD_METRICS_SLEEP_SEC", "6"))
+if metrics_sleep > 0:
+    time.sleep(metrics_sleep)
 
 shutdown()
 

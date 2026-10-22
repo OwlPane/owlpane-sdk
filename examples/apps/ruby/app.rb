@@ -2,6 +2,7 @@
 
 require "opentelemetry/sdk"
 require "opentelemetry/exporter/otlp"
+require_relative "metrics"
 
 endpoint = ENV.fetch("OTEL_EXPORTER_OTLP_ENDPOINT").chomp("/")
 headers = {}
@@ -28,6 +29,12 @@ OpenTelemetry::SDK.configure do |c|
   )
 end
 
+begin
+  setup_dogfood_metrics!(endpoint: endpoint, headers: headers)
+rescue LoadError => e
+  warn "Ruby runtime metrics skipped (#{e.message}) — add opentelemetry-metrics-sdk to Gemfile"
+end
+
 rich = ENV["OWLPANE_DOGFOOD_MODE"] == "rich"
 tracer = OpenTelemetry.tracer_provider.tracer("owlpane-dogfood")
 tracer.in_span(
@@ -46,6 +53,17 @@ end
 
 if rich
   tracer.in_span(
+    "sidekiq.process OrderShipped",
+    kind: :server,
+    attributes: {
+      "http.request.method" => "POST",
+      "http.route" => "/internal/sidekiq",
+      "messaging.system" => "sidekiq",
+      "messaging.destination.name" => "default",
+    },
+  ) {}
+
+  tracer.in_span(
     "POST /checkout",
     kind: :server,
     attributes: { "http.request.method" => "POST", "http.route" => "/checkout", "http.response.status_code" => 500 },
@@ -57,4 +75,8 @@ if rich
 end
 
 OpenTelemetry.tracer_provider.shutdown
+
+metrics_sleep = Integer(ENV.fetch("OWLPANE_DOGFOOD_METRICS_SLEEP_SEC", "8"))
+flush_dogfood_metrics!(seconds: metrics_sleep) if OpenTelemetry.meter_provider
+
 puts "span emitted (#{ENV.fetch('OTEL_SERVICE_NAME')})"

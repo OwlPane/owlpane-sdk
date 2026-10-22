@@ -1,4 +1,6 @@
 node_modules/
+packages/java/target/
+examples/.env.production-saas.bak
 packages/python/.venv/
 packages/python/**/__pycache__/
 packages/python/**/*.egg-info/

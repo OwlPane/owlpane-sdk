@@ -52,7 +52,7 @@ See [`examples/`](../../examples/README.md) for runnable per-language quickstart
 
 After deploying an SDK, open **Dashboards → Library** (`/observability/dashboards/library`) or **Dashboards → Built-in templates** (`/observability/dashboards/templates`) to install golden-signal and runtime dashboards.
 
-For **Observability → Runtimes** (Go, Rust, PHP/Laravel, .NET, etc.), see [Runtime telemetry](../runtime-telemetry.md) for resource attributes, span conventions, and process metrics the console boards expect.
+For **Observability → Runtimes** and **Serverless**, see the full [Runtime telemetry implementation guide](../runtime-telemetry.md) (resource attributes, spans, OTLP metrics, K8s agent, Collector, troubleshooting). Kubernetes: [agent runtime telemetry](../../agent/docs/runtime-telemetry.md).
 
 ## Publishing (Maintainers)
 
