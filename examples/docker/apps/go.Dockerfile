@@ -18,4 +18,4 @@ RUN chmod +x /docker/app-k8s-entrypoint.sh apps/go/run.sh \
   && go mod tidy \
   && go mod download
 ENV OWLPANE_DOGFOOD_APP_ID=go OWLPANE_EXAMPLE_MODE=loop OWLPANE_SDK_SOURCE=published
-ENTRYPOINT ["/sbin/tini", "--", "/docker/app-k8s-entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/tini", "--", "/docker/app-k8s-entrypoint.sh"]

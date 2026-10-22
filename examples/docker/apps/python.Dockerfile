@@ -13,4 +13,4 @@ RUN chmod +x /docker/app-k8s-entrypoint.sh apps/python/run.sh \
   && python3 -m venv .venv \
   && .venv/bin/pip install --no-cache-dir -r requirements-published.txt
 ENV OWLPANE_DOGFOOD_APP_ID=python OWLPANE_EXAMPLE_MODE=loop OWLPANE_SDK_SOURCE=published
-ENTRYPOINT ["/sbin/tini", "--", "/docker/app-k8s-entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/tini", "--", "/docker/app-k8s-entrypoint.sh"]

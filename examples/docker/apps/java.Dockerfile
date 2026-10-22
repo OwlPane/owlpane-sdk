@@ -10,4 +10,4 @@ RUN chmod +x /app-k8s-entrypoint.sh apps/java/run.sh \
   && curl -fsSL -o lib/opentelemetry-javaagent.jar \
     "https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.14.0/opentelemetry-javaagent.jar"
 ENV OWLPANE_DOGFOOD_APP_ID=java OWLPANE_EXAMPLE_MODE=loop OWLPANE_SDK_SOURCE=published
-ENTRYPOINT ["/sbin/tini", "--", "/app-k8s-entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/tini", "--", "/app-k8s-entrypoint.sh"]

@@ -14,4 +14,4 @@ COPY examples/apps/${APP_ID} ./apps/${APP_ID}/
 RUN chmod +x apps/${APP_ID}/run.sh \
   && /docker/npm-install-published-node.sh "${SDK_VERSION}" apps/node
 ENV OWLPANE_DOGFOOD_APP_ID=${APP_ID} OWLPANE_EXAMPLE_MODE=loop OWLPANE_SDK_SOURCE=published
-ENTRYPOINT ["/sbin/tini", "--", "/docker/app-k8s-entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/tini", "--", "/docker/app-k8s-entrypoint.sh"]

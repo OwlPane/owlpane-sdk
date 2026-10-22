@@ -8,4 +8,4 @@ COPY examples/docker/app-k8s-entrypoint.sh /app-k8s-entrypoint.sh
 RUN chmod +x /app-k8s-entrypoint.sh apps/ruby/run.sh \
   && cd apps/ruby && bundle config set path vendor/bundle && bundle install --jobs 4
 ENV OWLPANE_DOGFOOD_APP_ID=ruby OWLPANE_EXAMPLE_MODE=loop OWLPANE_SDK_SOURCE=published
-ENTRYPOINT ["/sbin/tini", "--", "/app-k8s-entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/tini", "--", "/app-k8s-entrypoint.sh"]
