@@ -13,5 +13,5 @@ elif [ -f .npmrc.ghpackages ]; then
   cp .npmrc.ghpackages .npmrc
   export GITHUB_PACKAGES_TOKEN="${GITHUB_PACKAGES_TOKEN:-$(gh auth token 2>/dev/null || true)}"
 fi
-[ -d node_modules ] || npm install --install-links --no-audit --no-fund
+npm install --include=dev --no-audit --no-fund
 npm run start
