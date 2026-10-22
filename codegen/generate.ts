@@ -187,10 +187,70 @@ function readReleaseVersion(): string {
   return JSON.parse(fs.readFileSync(nodePkg, "utf8")).version as string;
 }
 
+const OWLPANE_OTLP_ENV = [
+  "OWLPANE_INGEST_URL=https://ingest.example.com",
+  "OTEL_EXPORTER_OTLP_ENDPOINT=https://ingest.example.com",
+  "OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf",
+  "OWLPANE_INGEST_KEY=owl_ing_…",
+  "OTEL_SERVICE_NAME=my-service",
+  "OWLPANE_ENVIRONMENT=production",
+] as const;
+
 function generateInstallSnippets(): void {
   const v = readReleaseVersion();
   const snippets = {
     version: 1,
+    sdkRelease: v,
+    /** Published on every sdk-v* tag (Publish SDK workflow). */
+    publishedLanguages: [
+      "node",
+      "browser",
+      "python",
+      "go",
+      "java",
+      "ruby",
+    ],
+    /**
+     * Console Runtimes / Serverless: OTLP + standard OpenTelemetry SDKs.
+     * Dogfood: examples/apps/* ; native @owlpane/* packages planned (see docs/MULTILANGUAGE-SDK-ARCHITECTURE.md).
+     */
+    otelRuntimes: {
+      rust: {
+        consoleSlug: "rust",
+        tier: "otel-standard",
+        install:
+          "Add opentelemetry + opentelemetry-otlp crates; set OWLPANE_* / OTEL_* env (see examples/apps/rust).",
+        env: [...OWLPANE_OTLP_ENV],
+      },
+      php: {
+        consoleSlug: "php",
+        tier: "otel-standard",
+        install:
+          "Use OpenTelemetry PHP SDK or auto-instrumentation; export OTLP HTTP with OWLPANE_INGEST_KEY (examples/apps/php).",
+        env: [...OWLPANE_OTLP_ENV],
+      },
+      dotnet: {
+        consoleSlug: "dotnet",
+        tier: "otel-standard",
+        install:
+          "OpenTelemetry .NET SDK + OTLP exporter; configure via OWLPANE_* env (examples/apps/dotnet).",
+        env: [...OWLPANE_OTLP_ENV],
+      },
+      "react-native": {
+        consoleSlug: "react-native",
+        tier: "otel-standard",
+        install:
+          "Mobile OTel + @owlpane/node patterns for resource attrs; see examples/apps/react-native.",
+        env: [...OWLPANE_OTLP_ENV],
+      },
+      serverless: {
+        consoleSlug: "serverless",
+        tier: "otel-standard",
+        install:
+          "OpenTelemetry on Lambda/Functions; set faas.* resource attrs + OTLP to Owlpane ingest (examples/apps/serverless).",
+        env: [...OWLPANE_OTLP_ENV, "AWS_LAMBDA_FUNCTION_NAME=my-fn"],
+      },
+    },
     go: {
       module: "github.com/OwlPane/owlpane-sdk/packages/go/owlpane",
       goGet: `go get github.com/OwlPane/owlpane-sdk/packages/go@v${v}`,

@@ -44,9 +44,19 @@ pip install owlpane
 go get github.com/OwlPane/owlpane-sdk/packages/go@v0.1.5
 ```
 
-### Java, .NET, Ruby, Rust, PHP, Elixir
+### Java (Maven + agent)
 
-See [`examples/`](../../examples/README.md) for runnable per-language quickstarts that emit traces, metrics, and logs to your Owlpane workspace.
+Published artifact: `com.owlpane:owlpane-java` on GitHub Packages. Typical setup uses the **OpenTelemetry Java agent** plus `OWLPANE_*` / `OTEL_*` env — see [examples/apps/java](../../examples/apps/java).
+
+### Ruby (GitHub Packages gem)
+
+`gem install owlpane -v VERSION` from GitHub Packages; configure OTLP as in [examples/apps/ruby](../../examples/apps/ruby).
+
+### Rust, PHP, .NET, React Native, Serverless
+
+**Supported via standard OpenTelemetry** (same ingest keys and env). There is no separate Owlpane package on crates.io/Composer/NuGet yet — use the OTel SDK for your stack and follow the matching app under [`examples/apps/`](../../examples/README.md).
+
+Full matrix (published vs OTel-native vs roadmap): **[platform-support.md](./platform-support.md)**.
 
 ## Recommended Starter Dashboards
 
