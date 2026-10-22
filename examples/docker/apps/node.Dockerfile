@@ -10,7 +10,6 @@ COPY examples/apps/node/package.json examples/apps/node/package-lock.json* ./app
 COPY examples/apps/node/src ./apps/node/src
 COPY examples/apps/node/run.sh ./apps/node/
 RUN chmod +x apps/node/run.sh \
-  && /docker/npm-install-published-node.sh "${SDK_VERSION}" apps/node \
-  && cd apps/node && npm install tsx@^4.20.6 typescript@^5.9.3 --no-audit --no-fund
+  && /docker/npm-install-published-node.sh "${SDK_VERSION}" apps/node
 ENV OWLPANE_DOGFOOD_APP_ID=node OWLPANE_EXAMPLE_MODE=loop OWLPANE_SDK_SOURCE=published
 ENTRYPOINT ["/sbin/tini", "--", "/docker/app-k8s-entrypoint.sh"]

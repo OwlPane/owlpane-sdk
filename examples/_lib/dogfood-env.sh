@@ -19,9 +19,16 @@ if [ -z "$APP_ID" ]; then
 fi
 
 MANIFEST="$_EXAMPLES_ROOT/dogfood.manifest.json"
-if [ ! -f "$MANIFEST" ]; then
-  echo "Missing $MANIFEST" >&2
-  return 1 2>/dev/null || exit 1
+
+# In-cluster: Helm injects OWLPANE_INGEST_KEY + OTEL_SERVICE_NAME (no Node/Python needed).
+K8S_READY=false
+if [ -n "${OWLPANE_INGEST_KEY:-}" ] && [ -n "${OTEL_SERVICE_NAME:-}" ]; then
+  ENDPOINT="${OWLPANE_INGEST_URL:-${OWLPANE_ENDPOINT:-}}"
+  if [ -n "$ENDPOINT" ]; then
+    PROJECT="${OTEL_SERVICE_NAME}"
+    KEY="${OWLPANE_INGEST_KEY}"
+    K8S_READY=true
+  fi
 fi
 
 manifest_app_field() {
@@ -50,20 +57,26 @@ PY
   return 1
 }
 
-PROJECT="$(manifest_app_field "$APP_ID" project)" || PROJECT=""
-KEY_ENV="$(manifest_app_field "$APP_ID" ingestKeyEnv)" || KEY_ENV=""
+if [ "$K8S_READY" != true ]; then
+  if [ ! -f "$MANIFEST" ]; then
+    echo "Missing $MANIFEST" >&2
+    return 1 2>/dev/null || exit 1
+  fi
+  PROJECT="$(manifest_app_field "$APP_ID" project)" || PROJECT=""
+  KEY_ENV="$(manifest_app_field "$APP_ID" ingestKeyEnv)" || KEY_ENV=""
 
-ENDPOINT="${OWLPANE_INGEST_URL:-${OWLPANE_ENDPOINT:-}}"
-if [ -z "$ENDPOINT" ]; then
-  echo "Set OWLPANE_INGEST_URL in examples/.env" >&2
-  return 1 2>/dev/null || exit 1
-fi
+  ENDPOINT="${OWLPANE_INGEST_URL:-${OWLPANE_ENDPOINT:-}}"
+  if [ -z "$ENDPOINT" ]; then
+    echo "Set OWLPANE_INGEST_URL in examples/.env" >&2
+    return 1 2>/dev/null || exit 1
+  fi
 
-# Kubernetes injects OWLPANE_INGEST_KEY directly; laptop uses OWLPANE_INGEST_KEY_* from .env.
-KEY="${OWLPANE_INGEST_KEY:-}"
-if [ -z "$KEY" ] && [ -n "$KEY_ENV" ]; then
-  KEY="${!KEY_ENV:-}"
+  KEY="${OWLPANE_INGEST_KEY:-}"
+  if [ -z "$KEY" ] && [ -n "$KEY_ENV" ]; then
+    KEY="${!KEY_ENV:-}"
+  fi
 fi
+KEY_ENV="${KEY_ENV:-}"
 if [ -z "$KEY" ]; then
   echo "Missing ${KEY_ENV}. Run: ./scripts/onboard-dogfood.sh --write-env" >&2
   return 1 2>/dev/null || exit 1
@@ -90,7 +103,7 @@ fi
 export OWLPANE_INGEST_URL="${ENDPOINT%/}"
 export OWLPANE_INGEST_KEY="$KEY"
 export OWLPANE_ENVIRONMENT="${OWLPANE_ENVIRONMENT:-development}"
-export OTEL_SERVICE_NAME="$PROJECT"
+export OTEL_SERVICE_NAME="${PROJECT:-${OTEL_SERVICE_NAME:-}}"
 export OTEL_EXPORTER_OTLP_ENDPOINT="$OWLPANE_INGEST_URL"
 export OTEL_EXPORTER_OTLP_PROTOCOL="${OTEL_EXPORTER_OTLP_PROTOCOL:-http/protobuf}"
 export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer%20${OWLPANE_INGEST_KEY}"
@@ -111,7 +124,7 @@ case "$APP_ID" in
   serverless) LANG_ATTR="telemetry.sdk.language=nodejs,cloud.provider=aws,cloud.platform=aws_lambda" ;;
   *) LANG_ATTR="" ;;
 esac
-BASE_ATTRS="deployment.environment.name=${OWLPANE_ENVIRONMENT},service.version=0.1.1"
+BASE_ATTRS="deployment.environment.name=${OWLPANE_ENVIRONMENT},service.version=0.1.5"
 if [ -n "$LANG_ATTR" ]; then
   export OTEL_RESOURCE_ATTRIBUTES="${BASE_ATTRS},${LANG_ATTR}"
 else

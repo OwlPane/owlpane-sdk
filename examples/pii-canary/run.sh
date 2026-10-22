@@ -13,5 +13,7 @@ elif [ -f .npmrc.ghpackages ]; then
   cp .npmrc.ghpackages .npmrc
   export GITHUB_PACKAGES_TOKEN="${GITHUB_PACKAGES_TOKEN:-$(gh auth token 2>/dev/null || true)}"
 fi
-npm install --include=dev --no-audit --no-fund
+if [ "${OWLPANE_SDK_SOURCE:-}" != "published" ] || [ ! -d node_modules/@owlpane/node ]; then
+  npm install --include=dev --no-audit --no-fund
+fi
 npm run start

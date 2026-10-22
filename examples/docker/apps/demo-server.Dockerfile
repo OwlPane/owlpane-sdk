@@ -10,8 +10,7 @@ COPY examples/apps/demo-server/package.json ./apps/demo-server/
 COPY examples/apps/demo-server/src ./apps/demo-server/src
 COPY examples/apps/demo-server/run.sh ./apps/demo-server/
 RUN chmod +x apps/demo-server/run.sh \
-  && /docker/npm-install-published-node.sh "${SDK_VERSION}" apps/demo-server \
-  && cd apps/demo-server && npm install tsx@^4.20.6 typescript@^5.9.3 --no-audit --no-fund
+  && /docker/npm-install-published-node.sh "${SDK_VERSION}" apps/demo-server
 ENV NODE_ENV=production \
     OWLPANE_DOGFOOD_APP_ID=demo-server \
     OWLPANE_EXAMPLE_MODE=server \

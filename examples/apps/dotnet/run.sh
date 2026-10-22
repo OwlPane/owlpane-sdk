@@ -5,5 +5,6 @@ cd "$(dirname "$0")"
 source ../../_lib/dogfood-env.sh dotnet
 export OWLPANE_DOGFOOD_MODE="${OWLPANE_DOGFOOD_MODE:-rich}"
 export OWLPANE_DOGFOOD_MODE="${OWLPANE_DOGFOOD_MODE:-rich}"
-(cd ../node && npm install --no-audit --no-fund --silent)
+# shellcheck source=../../_lib/ensure-emitter-node-deps.sh
+source ../../_lib/ensure-emitter-node-deps.sh
 node ../../_lib/dogfood-rich-emit.mjs

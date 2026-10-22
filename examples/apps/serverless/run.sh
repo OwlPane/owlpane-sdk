@@ -4,5 +4,6 @@ cd "$(dirname "$0")"
 # shellcheck source=../../_lib/dogfood-env.sh
 source ../../_lib/dogfood-env.sh serverless
 export OWLPANE_DOGFOOD_MODE="${OWLPANE_DOGFOOD_MODE:-rich}"
-(cd ../node && npm install --no-audit --no-fund --silent)
+# shellcheck source=../../_lib/ensure-emitter-node-deps.sh
+source ../../_lib/ensure-emitter-node-deps.sh
 node ../../_lib/dogfood-rich-emit.mjs
