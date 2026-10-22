@@ -1,6 +1,8 @@
 FROM golang:1.23-bookworm
 ARG SDK_VERSION=0.1.5
 ENV GOTOOLCHAIN=auto
+# New module tags can lag sum.golang.org; allow direct module fetch from GitHub.
+ENV GONOSUMDB=github.com/OwlPane/owlpane-sdk
 RUN apt-get update && apt-get install -y --no-install-recommends tini bash && rm -rf /var/lib/apt/lists/*
 WORKDIR /app/examples
 COPY examples/_lib ./_lib
