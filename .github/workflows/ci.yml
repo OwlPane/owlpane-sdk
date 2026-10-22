@@ -26,3 +26,7 @@ jobs:
       - run: ruby -e "require './packages/ruby/lib/owlpane'; abort unless Owlpane::VERSION"
       - run: npm test
       - run: npm run build
+      - name: Validate k8s example config
+        run: |
+          chmod +x examples/scripts/validate-k8s-config.sh
+          examples/scripts/validate-k8s-config.sh

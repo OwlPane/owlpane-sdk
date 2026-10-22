@@ -19,8 +19,9 @@ fi
 source ../../_lib/dogfood-env.sh java
 export OWLPANE_DOGFOOD_MODE="${OWLPANE_DOGFOOD_MODE:-rich}"
 mkdir -p lib out
+OTEL_JAVAAGENT_VERSION="${OTEL_JAVAAGENT_VERSION:-2.14.0}"
 [ -f lib/opentelemetry-javaagent.jar ] || curl -fsSL -o lib/opentelemetry-javaagent.jar \
-  https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
+  "https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${OTEL_JAVAAGENT_VERSION}/opentelemetry-javaagent.jar"
 API_VER=1.49.0
 [ -f lib/opentelemetry-api.jar ] || curl -fsSL -o lib/opentelemetry-api.jar \
   "https://repo1.maven.org/maven2/io/opentelemetry/opentelemetry-api/$API_VER/opentelemetry-api-$API_VER.jar"

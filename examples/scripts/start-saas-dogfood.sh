@@ -4,6 +4,12 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+if [[ -f "$ROOT/.dogfood-laptop-off" ]]; then
+  echo "Laptop SaaS dogfood is disabled ($ROOT/.dogfood-laptop-off)." >&2
+  echo "Use in-cluster sdk-examples (seo-infra owlpane-sdk-examples) or: rm $ROOT/.dogfood-laptop-off" >&2
+  exit 1
+fi
+
 if [[ ! -f .env ]] || ! grep -q 'owlpane-api.crikiq.com' .env 2>/dev/null; then
   if [[ -f .env.production-saas.bak ]]; then
     cp .env.production-saas.bak .env
