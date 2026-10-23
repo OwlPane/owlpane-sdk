@@ -46,7 +46,7 @@ async function token() {
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data?.message ?? res.statusText)
-  return data.token ?? data.accessToken
+  return data.token ?? data.accessToken ?? data.sessionToken
 }
 
 async function metricNames(bearer) {
