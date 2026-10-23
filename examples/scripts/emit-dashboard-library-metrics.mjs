@@ -109,11 +109,18 @@ const attrs = {
 
 let t = 0
 for (const name of GAUGES) {
-  meter.createObservableGauge(name, (obs) => {
+  const wave = () => {
     t += 1
-    const wave = 1 + 0.15 * Math.sin(t / 8)
-    const base = name.includes('ratio') ? 1.05 : name.includes('uptime') ? 86400 : name.startsWith('argocd_') ? 12 : 1_000_000
-    obs.observe(base * wave, attrs)
+    return 1 + 0.15 * Math.sin(t / 8)
+  }
+  const base = name.includes('ratio') ? 1.05 : name.includes('uptime') ? 86400 : name.startsWith('argocd_') ? 12 : 1_000_000
+  if (name.endsWith('_total') || name.endsWith('_count') || name.endsWith('_sum')) {
+    const counter = meter.createCounter(name)
+    setInterval(() => counter.add(Math.max(1, Math.round(base * wave())), attrs), 5000)
+    continue
+  }
+  meter.createObservableGauge(name, (obs) => {
+    obs.observe(base * wave(), attrs)
   })
 }
 
