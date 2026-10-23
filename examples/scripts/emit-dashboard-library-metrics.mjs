@@ -5,6 +5,8 @@
  *
  *   node scripts/emit-dashboard-library-metrics.mjs
  *   node scripts/emit-dashboard-library-metrics.mjs --category ArgoCD
+ *   node scripts/emit-dashboard-library-metrics.mjs --from-catalog
+ *   node scripts/emit-dashboard-library-metrics.mjs --from-catalog --tier1
  *
  * Metric list: dashboard-dogfood-metrics.json (coverage: owlpane/api → npm run report:library-coverage)
  */
@@ -26,7 +28,38 @@ if (existsSync(envPath)) {
 const manifest = JSON.parse(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'dashboard-dogfood-metrics.json'), 'utf8'))
 const BY_CATEGORY = manifest.byCategory
 
+const fromCatalog = process.argv.includes('--from-catalog')
+const tier1Only = process.argv.includes('--tier1')
 const categoryArg = process.argv.find((a, i) => process.argv[i - 1] === '--category') ?? process.env.OWLPANE_DOGFOOD_CATEGORY
+
+const catalogPath = resolve(root, '../../api/src/product/dashboard-metrics-catalog.generated.json')
+
+function tier1CatalogEntry(entry) {
+  const { category, slug } = entry
+  if (/kubernetes|argocd/i.test(category)) return true
+  if (/^Owlpane$/i.test(category)) return true
+  return /^owl-(owlpane|kubernetes|argocd)-/i.test(slug)
+}
+
+function metricsFromCatalog() {
+  if (!existsSync(catalogPath)) {
+    console.error(`Missing ${catalogPath} — run: cd owlpane/api && npm run build:starter-catalog`)
+    process.exit(1)
+  }
+  const catalog = JSON.parse(readFileSync(catalogPath, 'utf8'))
+  const max = Number(process.env.OWLPANE_DOGFOOD_MAX_METRICS ?? '800')
+  const names = new Set()
+  for (const entry of catalog) {
+    if (tier1Only && !tier1CatalogEntry(entry)) continue
+    for (const m of entry.metrics ?? []) names.add(m)
+  }
+  const list = [...names].sort()
+  if (list.length > max) {
+    console.warn(`Catalog has ${list.length} unique metrics; emitting first ${max} (raise OWLPANE_DOGFOOD_MAX_METRICS)`)
+    return list.slice(0, max)
+  }
+  return list
+}
 
 owlpane.start({
   service: 'owlpane-dashboard-dogfood',
@@ -48,6 +81,7 @@ const node = process.env.OWLPANE_DOGFOOD_NODE ?? 'node-a'
 const ALL = [...new Set(Object.values(BY_CATEGORY).flat())]
 
 function gaugesForRun() {
+  if (fromCatalog) return metricsFromCatalog()
   if (!categoryArg) return ALL
   const key = Object.keys(BY_CATEGORY).find(
     (k) => k.toLowerCase() === categoryArg.toLowerCase() || k.includes(categoryArg) || categoryArg.includes(k),
@@ -83,8 +117,9 @@ for (const name of GAUGES) {
   })
 }
 
+const mode = fromCatalog ? (tier1Only ? 'catalog:tier1' : 'catalog:full') : categoryArg ?? 'all categories'
 console.log(
-  `Emitting ${GAUGES.length} library metrics (${categoryArg ?? 'all categories'}) → ${process.env.OWLPANE_INGEST_URL} env=${process.env.OWLPANE_ENVIRONMENT}`,
+  `Emitting ${GAUGES.length} library metrics (${mode}) → ${process.env.OWLPANE_INGEST_URL} env=${process.env.OWLPANE_ENVIRONMENT}`,
 )
 console.log('Press Ctrl+C to stop. Re-open dashboards after ~30s for catalog refresh.')
 
